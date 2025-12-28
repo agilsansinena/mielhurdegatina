@@ -34,10 +34,6 @@
 		{
 			"src": "^/terminos-y-condiciones/?$",
 			"dest": "_render"
-		},
-		{
-			"src": "^/$",
-			"dest": "_render"
 		}
 	]
 }
