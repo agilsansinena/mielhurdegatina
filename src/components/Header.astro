@@ -1,0 +1,141 @@
+---
+import { Image } from 'astro:assets';
+import { ShoppingCart, Menu, X } from 'lucide-astro';
+import logoImg from '../assets/logo-rgb-A85MJZK7J2SBMK2k.avif'
+
+
+const navItems = [
+  { name: 'Inicio', href: '#inicio' },
+  { name: 'Productos', href: '#productos' },
+  { name: 'Historia', href: '#historia' },
+  { name: 'Proceso', href: '#proceso' },
+  { name: 'Valoraciones', href: '#testimonios' },
+  { name: 'FAQ', href: '#faq' },
+];
+---
+
+<header class="fixed w-full z-50 transition-all duration-300 group" id="main-header">
+  <div class="absolute inset-0 bg-white/0 backdrop-blur-none transition-all duration-300 group-[.scrolled]:bg-white/90 group-[.scrolled]:backdrop-blur-md group-[.scrolled]:shadow-sm border-b border-transparent group-[.scrolled]:border-stone-100"></div>
+  
+  <div class="container mx-auto px-6 py-4 relative flex items-center justify-between">
+    <a href="/" class="flex items-center gap-3 z-10 transition-colors">
+      <Image src={logoImg} alt="Miel Hurdes Gatina" class="h-12 w-auto object-contain transition-all duration-300 " />
+      <span class="text-xl  font-bold text-white transition-colors duration-300 group-[.scrolled]:text-stone-800 hidden sm:block">MielHurdeGatina</span>
+    </a>
+
+    <nav class="hidden lg:flex items-center gap-8 z-10">
+      {navItems.map(item => (
+        <a 
+          href={item.href} 
+          class="text-sm font-medium text-white transition-colors duration-300 group-[.scrolled]:text-stone-600 hover:text-amber-400 group-[.scrolled]:hover:text-amber-600 tracking-wide"
+        >
+          {item.name}
+        </a>
+      ))}
+      <a href="#productos" class="bg-amber-500 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-amber-600 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+        Comprar
+      </a>
+      
+      <button id="header-cart-btn" class="relative p-2 text-white transition-colors duration-300 group-[.scrolled]:text-stone-600 hover:text-amber-500 group-[.scrolled]:hover:text-amber-600">
+        <ShoppingCart class="w-6 h-6" />
+        <span id="header-cart-count" class="absolute -top-1 -right-1 bg-amber-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full opacity-0 transition-opacity">0</span>
+      </button>
+    </nav>
+    
+    <!-- Mobile Menu Button (Simple implementation) -->
+    <div class="flex items-center gap-4 lg:hidden z-10">
+        <button id="mobile-cart-btn" class="p-2 text-white transition-colors duration-300 group-[.scrolled]:text-stone-800">
+            <ShoppingCart class="w-6 h-6" />
+        </button>
+        <button id="mobile-menu-btn" class="text-white transition-colors duration-300 group-[.scrolled]:text-stone-800 p-2">
+            <Menu class="w-7 h-7" />
+        </button>
+    </div>
+  </div>
+
+  <div id="mobile-menu" class="fixed inset-0 bg-white z-50 transform translate-x-full transition-transform duration-300 flex flex-col lg:hidden">
+    <div class="p-6 flex justify-between items-center border-b border-stone-100">
+        <div class="flex items-center gap-3">
+             <Image src={logoImg} alt="Miel Hurdes Gatina" class="h-10 w-auto object-contain" />
+             <span class="text-lg font-bold text-stone-800">MielHurdeGatina</span>
+        </div>
+        <button id="close-menu-btn" class="p-2 text-stone-500 hover:text-stone-800">
+            <X class="w-7 h-7" />
+        </button>
+    </div>
+    <nav class="flex-1 flex flex-col items-center justify-center gap-8 p-6">
+        {navItems.map(item => (
+            <a 
+              href={item.href} 
+              class="mobile-link text-2xl font-bold text-stone-800 hover:text-amber-500 transition-colors"
+            >
+              {item.name}
+            </a>
+          ))}
+          <a href="#productos" class="mobile-link bg-amber-500 text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-amber-600 transition-all shadow-lg transform hover:-translate-y-0.5 mt-4">
+            Comprar Ahora
+          </a>
+    </nav>
+    <div class="p-8 text-center text-stone-400 text-sm">
+        <p>&copy; {new Date().getFullYear()} Miel HurdeGatina</p>
+    </div>
+  </div>
+</header>
+
+
+<script>
+  const header = document.getElementById('main-header');
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+  const closeMenuBtn = document.getElementById('close-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const mobileLinks = document.querySelectorAll('.mobile-link');
+  
+  const handleScroll = () => {
+    if (window.scrollY > 50) {
+      header?.classList.add('scrolled');
+    } else {
+      header?.classList.remove('scrolled');
+    }
+  };
+
+  window.addEventListener('scroll', handleScroll);
+
+  // Mobile Menu Logic
+  const toggleMenu = () => {
+      mobileMenu?.classList.toggle('translate-x-full');
+      if (mobileMenu?.classList.contains('translate-x-full')) {
+          document.body.style.overflow = '';
+      } else {
+          document.body.style.overflow = 'hidden';
+      }
+  };
+
+  mobileMenuBtn?.addEventListener('click', toggleMenu);
+  closeMenuBtn?.addEventListener('click', toggleMenu);
+
+  mobileLinks.forEach(link => {
+      link.addEventListener('click', () => {
+          toggleMenu();
+      });
+  });
+
+  import { isCartOpen, cartItems } from '../stores/cartStore';
+
+  const cartBtns = [document.getElementById('header-cart-btn'), document.getElementById('mobile-cart-btn')];
+  const countBadge = document.getElementById('header-cart-count');
+
+  cartBtns.forEach(btn => {
+      btn?.addEventListener('click', () => {
+          isCartOpen.set(true);
+      });
+  });
+
+  cartItems.subscribe(items => {
+      const count = items.reduce((acc:any, item:any) => acc + item.quantity, 0);
+      if (countBadge) {
+          countBadge.innerText = count.toString();
+          if (count > 0) countBadge.classList.remove('opacity-0');
+          else countBadge.classList.add('opacity-0');
+      }
+  });
+</script>

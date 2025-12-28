@@ -1,0 +1,309 @@
+---
+import { ShoppingCart, X, ArrowRight, Lock } from 'lucide-astro';
+---
+
+<div id="cart-drawer" class="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-white border-l border-stone-100 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col font-sans">
+    <!-- Header -->
+    <div class="p-6 border-b border-stone-100 flex items-center justify-between bg-white/50 backdrop-blur-md">
+        <h2 class="text-2xl font-bold text-amber-900 font-display flex items-center gap-2">
+            <ShoppingCart class="w-6 h-6 text-amber-500" />
+            Tu Cesta
+        </h2>
+        <button id="close-cart-btn" class="p-2 text-stone-400 hover:text-stone-600 transition-colors rounded-full hover:bg-stone-100">
+            <X class="w-6 h-6" />
+        </button>
+    </div>
+
+    <!-- Items Container -->
+    <div id="cart-items-container" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
+        <div class="text-center text-stone-500 py-10">
+            <p>La cesta está vacía</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="p-6 border-t border-stone-100 bg-stone-50/50 backdrop-blur-md">
+        <div class="flex justify-between items-center mb-6">
+            <span class="text-stone-600">Total</span>
+            <span id="cart-total" class="text-3xl font-bold text-amber-600">0.00€</span>
+        </div>
+            <div id="paypal-button-container" class="mt-4 w-full z-0"></div>
+            <p class="text-center text-stone-400 text-xs mt-4 flex items-center justify-center gap-1">
+                <Lock class="w-3 h-3" />
+                Pago seguro con PayPal
+            </p>
+    </div>
+</div>
+
+<!-- Backdrop -->
+<div id="cart-backdrop" class="fixed inset-0 bg-stone-900/20 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300"></div>
+
+<script>
+    import { cartItems, isCartOpen, removeCartItem, updateCartItemQuantity } from '../stores/cartStore';
+
+    interface CartItem {
+        id: string;
+        name: string;
+        price: number;
+        image: string;
+        quantity: number;
+    }
+
+    const cartDrawer = document.getElementById('cart-drawer');
+    const cartBackdrop = document.getElementById('cart-backdrop');
+    const closeBtn = document.getElementById('close-cart-btn');
+    const itemsContainer = document.getElementById('cart-items-container');
+    const totalElement = document.getElementById('cart-total');
+    
+    declare global {
+        interface Window {
+            paypal: any;
+        }
+    }
+
+    let isPayPalLoaded = false;
+    let paypalButtonsComponent: any = null;
+
+    const PUBLIC_PAYPAL_CLIENT_ID = import.meta.env.PUBLIC_PAYPAL_CLIENT_ID || "sb";
+    
+    const loadPayPalScript = () => {
+        if (isPayPalLoaded) return Promise.resolve();
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = `https://www.paypal.com/sdk/js?client-id=${PUBLIC_PAYPAL_CLIENT_ID}&currency=EUR&enable-funding=card`; 
+            script.onload = () => {
+                isPayPalLoaded = true;
+                resolve(true);
+            };
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    };
+
+    const renderPayPalButtons = async () => {
+        const container = document.getElementById('paypal-button-container');
+        if (!container) return;
+        
+        container.innerHTML = ''; 
+
+        if (!window.paypal) {
+            try {
+                await loadPayPalScript();
+            } catch (err) {
+                console.error("Failed to load PayPal", err);
+                container.innerHTML = '<p class="text-red-500 text-sm text-center">Error cargando sistema de pagos</p>';
+                return;
+            }
+        }
+
+        if (window.paypal) {
+            window.paypal.Buttons({
+                style: {
+                    layout: 'vertical',
+                    color:  'gold',
+                    shape:  'rect',
+                    label:  'paypal'
+                },
+                createOrder: async (data: any, actions: any) => {
+                   try {
+                        const currentItems = cartItems.get();
+                        const response = await fetch('/api/create-paypal-order', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                cartItems: currentItems
+                            })
+                        });
+                        
+                        const orderData = await response.json();
+                        
+                        if (orderData.id) {
+                            return orderData.id;
+                        } else {
+                            console.error("Server API returned error:", orderData);
+                            const errorDetail = orderData?.details || orderData?.error || JSON.stringify(orderData);
+                            throw new Error(`Error en el servidor: ${errorDetail}`);
+                        }
+                   } catch (error) {
+                       console.error("Create Order Error catch:", error);
+                       alert("No se pudo iniciar el pago: " + error);
+                       throw error; 
+                   }
+                },
+                onApprove: async (data: any, actions: any) => {
+                    try {
+                        const response = await fetch('/api/capture-paypal-order', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                orderID: data.orderID
+                            })
+                        });
+
+                        const details = await response.json();
+
+                        if (details.error) {
+                            throw new Error(details.details || details.error);
+                        }
+
+                        if (details.status === 'COMPLETED') {
+                            alert('¡Pago completado con éxito! Gracias por tu compra ' + details.payer.name.given_name);
+                            // Clear cart
+                            cartItems.set([]); 
+                            // Close drawer
+                            isCartOpen.set(false);
+                            // Redirect to success page
+                            window.location.href = "/exito";
+                        } else {
+                            alert("El pago no se pudo completar. Estado: " + details.status);
+                        }
+
+                    } catch (error) {
+                        console.error("Capture Error:", error);
+                        alert("Hubo un error al procesar el pago: " + error);
+                    }
+                },
+                onError: (err: any) => {
+                    console.error("PayPal Error:", err);
+                    alert("Hubo un error con el pago. Por favor, inténtalo de nuevo.");
+                }
+            }).render('#paypal-button-container');
+        }
+    };
+
+    // Toggle Cart
+    isCartOpen.subscribe(isOpen => {
+        if (isOpen) {
+            cartDrawer?.classList.remove('translate-x-full');
+            cartBackdrop?.classList.remove('hidden');
+            setTimeout(() => cartBackdrop?.classList.remove('opacity-0'), 10);
+            document.body.style.overflow = 'hidden';
+            
+          
+             const items = cartItems.get();
+             if(items.length > 0) {
+                 renderPayPalButtons();
+             }
+
+        } else {
+            cartDrawer?.classList.add('translate-x-full');
+            cartBackdrop?.classList.add('opacity-0');
+            setTimeout(() => cartBackdrop?.classList.add('hidden'), 300);
+            document.body.style.overflow = '';
+        }
+    });
+
+    function closeCart() {
+        isCartOpen.set(false);
+    }
+
+    closeBtn?.addEventListener('click', closeCart);
+    cartBackdrop?.addEventListener('click', closeCart);
+
+    // Render Items
+    cartItems.subscribe((items: CartItem[]) => {
+        if (!itemsContainer || !totalElement) return;
+
+        if (items.length === 0) {
+            itemsContainer.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-full text-stone-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-basket mb-4 opacity-50"><path d="m5 11 4-7"/><path d="m19 11-4-7"/><path d="M2 11h20"/><path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8c.9 0 1.8-.7 2-1.6l1.7-7.4"/><path d="m9 11 1 9"/><path d="m4.5 11 .1 9"/><path d="m15 11-1 9"/></svg>
+                    <p>Tu cesta está vacía</p>
+                    <button id="start-shopping-btn" class="mt-4 text-amber-600 hover:underline">Ver productos</button>
+                </div>
+            `;
+            const startShoppingBtn = document.getElementById('start-shopping-btn');
+            startShoppingBtn?.addEventListener('click', closeCart);
+            totalElement.textContent = '0.00€';
+            
+            const container = document.getElementById('paypal-button-container');
+            if(container) container.innerHTML = '';
+
+        } else {
+            let total = 0;
+            itemsContainer.innerHTML = items.map(item => {
+                total += item.price * item.quantity;
+                return `
+                    <div class="flex gap-4 p-4 rounded-xl bg-amber-50/50 border border-amber-100/50 hover:border-amber-200 transition-colors">
+                        <img src="${item.image}" alt="${item.name}" class="w-20 h-20 object-cover rounded-lg bg-stone-100" />
+                        <div class="flex-1 flex flex-col justify-between">
+                            <div class="flex justify-between items-start">
+                                <h3 class="font-bold text-stone-800 line-clamp-1 text-sm">${item.name}</h3>
+                                <button class="delete-btn text-stone-400 hover:text-red-500 transition-colors" data-id="${item.id}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                                </button>
+                            </div>
+                            <div class="flex justify-between items-end">
+                                <div class="flex items-center gap-3 bg-white rounded-lg p-1 border border-stone-200">
+                                    <button class="quantity-btn p-1 text-stone-500 hover:text-stone-800 rounded hover:bg-stone-100" data-id="${item.id}" data-action="decrease">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>
+                                    </button>
+                                    <span class="text-sm font-bold w-4 text-center text-stone-700">${item.quantity}</span>
+                                    <button class="quantity-btn p-1 text-stone-500 hover:text-stone-800 rounded hover:bg-stone-100" data-id="${item.id}" data-action="increase">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                                    </button>
+                                </div>
+                                <span class="font-bold text-amber-600 text-sm">${(item.price * item.quantity).toFixed(2)}€</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            totalElement.textContent = total.toFixed(2) + '€';
+
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const target = e.currentTarget as HTMLElement | null;
+                    const id = target?.getAttribute('data-id');
+                    if(id) removeCartItem(id);
+                });
+            });
+
+            document.querySelectorAll('.quantity-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const target = e.currentTarget as HTMLElement | null;
+                    if (!target) return;
+                    const id = target.getAttribute('data-id');
+                    const action = target.getAttribute('data-action');
+                    if (!id) return;
+                    
+                    const currentItem = items.find(i => i.id === id);
+                    if (!currentItem) return;
+
+                    if (action === 'increase') {
+                        updateCartItemQuantity(id, currentItem.quantity + 1);
+                    } else {
+                        updateCartItemQuantity(id, currentItem.quantity - 1);
+                    }
+                });
+            });
+            
+ 
+            if(cartDrawer && !cartDrawer.classList.contains('translate-x-full')) {
+                 renderPayPalButtons();
+            }
+        }
+    });
+
+</script>
+
+<style>
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(217, 119, 6, 0.3);
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(217, 119, 6, 0.6);
+}
+</style>

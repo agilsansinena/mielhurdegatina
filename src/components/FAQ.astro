@@ -1,0 +1,63 @@
+---
+import { ChevronDown } from 'lucide-astro';
+
+const faqs = [
+  {
+    question: "¿Cuánto tarda el envío?",
+    answer: "Nuestros pedidos se preparan con mucho mimo y salen en 24-48h laborables. Normalmente los recibirás en 2-3 días hábiles en la península. Te enviaremos un código de seguimiento."
+  },
+  {
+    question: "¿La miel es pura y cruda?",
+    answer: "Sí, 100%. Nuestra miel no ha sido calentada ni pasteurizada, por lo que conserva todas sus enzimas, vitaminas y propiedades naturales intactas. Va de la colmena al tarro."
+  },
+  {
+    question: "¿Qué pasa si se cristaliza?",
+    answer: "¡Es una buena señal! Solo la miel pura cristaliza. Si la prefieres líquida, puedes poner el tarro al baño maría suave (sin superar los 40ºC) para que vuelva a su estado líquido sin perder propiedades."
+  },
+  {
+    question: "¿Qué hago si llega un tarro roto?",
+    answer: "Aunque protegemos mucho los paquetes, a veces pasa. No te preocupes: sácale una foto y escríbenos a mielhurdegatina@gmail.com o por WhatsApp. Te enviaremos uno nuevo sin coste o te devolveremos el dinero."
+  },
+  {
+    question: "¿Tenéis precios para tiendas o grandes cantidades?",
+    answer: "Sí, si tienes una tienda o quieres hacer un regalo de boda/evento, contáctanos directamente para ver nuestras tarifas especiales para profesionales."
+  }
+];
+---
+
+<section id="faq" class="py-24 bg-stone-50">
+  <div class="container mx-auto px-6 max-w-4xl">
+    <div class="text-center mb-16 space-y-4">
+      <span class="text-amber-600 font-semibold tracking-wider uppercase text-sm">¿Tienes dudas?</span>
+      <h2 class="text-4xl font-display font-medium text-stone-900">
+        Preguntas Frecuentes
+      </h2>
+    </div>
+
+    <div class="space-y-4">
+      {faqs.map((faq) => (
+        <details class="group bg-white rounded-xl border border-stone-200 overflow-hidden transition-all duration-300 hover:shadow-md open:shadow-lg open:border-amber-200">
+          <summary class="flex justify-between items-center p-6 cursor-pointer list-none text-stone-800 font-medium text-lg hover:text-amber-700 transition-colors">
+            <span>{faq.question}</span>
+            <span class="transform group-open:rotate-180 transition-transform duration-300 text-amber-500">
+              <ChevronDown class="w-6 h-6" />
+            </span>
+          </summary>
+          <div class="px-6 pb-6 text-stone-600 leading-relaxed border-t border-transparent group-open:border-stone-100 pt-4 animate-fade-in">
+            {faq.answer}
+          </div>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+
+  details > summary {
+    list-style: none;
+  }
+  details > summary::-webkit-details-marker {
+    display: none;
+  }
+</style>

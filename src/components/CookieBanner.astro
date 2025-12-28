@@ -1,0 +1,35 @@
+<div id="cookie-banner" class="fixed bottom-0 left-0 right-0 bg-stone-900 text-white p-4 md:p-6 z-50 transform translate-y-full transition-transform duration-500 shadow-2xl">
+  <div class="container mx-auto max-w-6xl flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="text-sm md:text-base text-stone-300 max-w-3xl">
+      <p>
+        Utilizamos cookies propias para mejorar tu experiencia de compra y recordar tu carrito. 
+        Si continúas navegando, consideramos que aceptas su uso. 
+        Puedes leer más en nuestra <a href="/politica-de-privacidad" class="text-amber-400 hover:text-amber-300 underline">Política de Privacidad</a>.
+      </p>
+    </div>
+    <div class="flex gap-4 min-w-max">
+      <button 
+        id="accept-cookies" 
+        class="bg-amber-500 hover:bg-amber-400 text-stone-900 px-6 py-2.5 rounded-full font-bold transition-colors text-sm md:text-base"
+      >
+        Aceptar y Cerrar
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const banner = document.getElementById('cookie-banner');
+  const acceptBtn = document.getElementById('accept-cookies');
+
+  if (!localStorage.getItem('cookies-accepted')) {
+    setTimeout(() => {
+      banner?.classList.remove('translate-y-full');
+    }, 1500);
+  }
+
+  acceptBtn?.addEventListener('click', () => {
+    localStorage.setItem('cookies-accepted', 'true');
+    banner?.classList.add('translate-y-full');
+  });
+</script>

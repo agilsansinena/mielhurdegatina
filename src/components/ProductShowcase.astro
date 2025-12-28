@@ -1,0 +1,44 @@
+---
+import { Image } from 'astro:assets';
+import miel2kg from '../assets/miel2kg.avif';
+import miel1kg from '../assets/miel1kg.avif';
+import miel500g from '../assets/miel500g.avif';
+
+import ProductCard from './ProductCard.astro';
+
+import { products as productData } from '../data/products';
+
+const products = productData.map(p => {
+  let image;
+  if(p.id === 'miel-bosque-2kg') image = miel2kg;
+  else if(p.id === 'miel-bosque-1kg') image = miel1kg;
+  else image = miel500g;
+
+  return { ...p, image };
+});
+---
+
+<section id="productos" class="py-24 bg-stone-50">
+  <div class="container mx-auto px-6">
+    <div class="text-center mb-16 space-y-4">
+      <h2 class="text-4xl md:text-5xl font-display font-medium text-stone-900">
+        Nuestra Miel
+      </h2>
+      <p class="text-stone-600 max-w-2xl mx-auto">
+        Cosechada directamente de nuestras colmenas, sin procesar ni calentar. 100% Miel Pura.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
+      {products.map(product => (
+        <ProductCard
+          id={product.id}
+          name={product.title}
+          price={product.price}
+          description={product.description}
+          image={product.image}
+        />
+      ))}
+    </div>
+  </div>
+</section>

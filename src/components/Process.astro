@@ -1,0 +1,72 @@
+---
+import { Flower, MoveRight, Beaker, CheckCircle2, Package } from 'lucide-astro';
+
+const steps = [
+  {
+    title: "Floración Silvestre",
+    description: "Nuestras abejas liban néctar de brezo, roble y castaño en las montañas vírgenes de Las Hurdes.",
+    icon: Flower,
+    color: "bg-pink-100 text-pink-600"
+  },
+  {
+    title: "Recolección Manual",
+    description: "Extraemos los panales a mano, solo cuando están 100% operculados, respetando el ciclo de la colmena.",
+    icon: Beaker, // Using Beaker as abstraction for extraction frame
+    color: "bg-amber-100 text-amber-600"
+  },
+  {
+    title: "Filtrado en Frío",
+    description: "La miel se filtra por gravedad para quitar impurezas, sin pasteurizar ni calentar jamás.",
+    icon: CheckCircle2,
+    color: "bg-emerald-100 text-emerald-600"
+  },
+  {
+    title: "Envasado Directo",
+    description: "Del madurador al tarro. Sin mezclas ni añadidos. Pura naturaleza lista para tu despensa.",
+    icon: Package,
+    color: "bg-stone-100 text-stone-600"
+  }
+];
+---
+
+<section id="proceso" class="py-24 bg-white">
+  <div class="container mx-auto px-6">
+    <div class="text-center mb-20 space-y-4">
+      <span class="text-brand-600 font-semibold tracking-wider uppercase text-sm">Del Campo a tu Mesa</span>
+      <h2 class="text-4xl md:text-5xl font-display font-medium text-stone-900">
+        Nuestro Proceso Artesanal
+      </h2>
+      <p class="text-stone-600 max-w-2xl mx-auto text-lg">
+        Mantenemos viva una tradición de siglos para garantizar la máxima calidad y pureza.
+      </p>
+    </div>
+
+    <div class="relative grid grid-cols-1 md:grid-cols-4 gap-12">
+      <!-- Connecting Line (Desktop) -->
+      <div class="hidden md:block absolute top-12 left-[12%] right-[12%] h-0.5 bg-stone-100 -z-10"></div>
+
+      {steps.map((step, index) => (
+        <div class="flex flex-col items-center text-center group">
+          <div class={`w-24 h-24 rounded-full flex items-center justify-center mb-8 relative z-10 transition-transform duration-500 group-hover:scale-110 shadow-sm ${step.color}`}>
+            <step.icon class="w-10 h-10" stroke-width="1.5" />
+            <div class="absolute -bottom-2 bg-white px-2 py-1 rounded-full border border-stone-100 text-xs font-bold text-stone-400">
+              0{index + 1}
+            </div>
+          </div>
+          
+          <h3 class="text-xl font-bold text-stone-800 font-display mb-3">{step.title}</h3>
+          <p class="text-stone-600 leading-relaxed text-sm">
+            {step.description}
+          </p>
+          
+          <!-- Mobile Arrow -->
+          {index < steps.length - 1 && (
+            <div class="md:hidden mt-8 text-stone-300">
+              <MoveRight class="w-6 h-6 rotate-90" />
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
