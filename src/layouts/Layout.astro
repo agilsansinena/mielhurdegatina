@@ -4,6 +4,8 @@ import { ViewTransitions } from 'astro:transitions';
 import Cart from '../components/Cart.astro';
 import WhatsAppButton from '../components/WhatsAppButton.astro';
 import CookieBanner from '../components/CookieBanner.astro';
+import Analytics from '@vercel/analytics/astro'
+import SpeedInsights from "@vercel/speed-insights/astro"
 
 interface Props {
 	title: string;
@@ -43,11 +45,14 @@ const { title, description = "Miel HurdeGatina - Miel artesanal de Las Hurdes. T
 		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 		
 		<ViewTransitions />
+		<Analytics />
+		<SpeedInsights />
 	</head>
 	<body class="min-h-screen flex flex-col">
 		<slot />
 		<Cart />
 		<WhatsAppButton />
 		<CookieBanner />
+		
 	</body>
 </html>

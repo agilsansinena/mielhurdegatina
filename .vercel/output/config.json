@@ -30,10 +30,6 @@
 		{
 			"src": "^/exito/?$",
 			"dest": "_render"
-		},
-		{
-			"src": "^/terminos-y-condiciones/?$",
-			"dest": "_render"
 		}
 	]
 }
