@@ -4,19 +4,19 @@ import { Star, Quote } from 'lucide-astro';
 const testimonials = [
   {
     name: "María García",
-    location: "Madrid",
+    location: "Plasencia",
     text: "Increíble sabor. Se nota que es miel de verdad, nada que ver con la del supermercado. El envío llegó súper rápido y muy bien protegido.",
     rating: 5
   },
   {
-    name: "Carlos Ruiz",
-    location: "Cáceres",
-    text: "Llevo años comprando miel en Las Hurdes y esta es de las mejores. Textura perfecta y un aroma a bosque que enamora. Repetiré seguro.",
+    name: "Sofía Marquez",
+    location: "Alagón del Rio",
+    text: "Excelente calidad y trato cercano. Manuel me aconsejó qué variedad elegir y acertó de pleno. Muy agradecida por el servicio.",
     rating: 5
   },
   {
-    name: "Elena T.",
-    location: "Barcelona",
+    name: "Elena Tello",
+    location: "Villanueva de la Sierra",
     text: "Compré el pack de regalo para mis padres y quedaron encantados. La presentación es muy cuidada y la miel exquisita. ¡Muy recomendada!",
     rating: 5
   }
@@ -24,9 +24,6 @@ const testimonials = [
 ---
 
 <section id="testimonios" class="py-24 bg-white relative overflow-hidden">
-  <!-- Decorative background elements -->
-  <div class="absolute top-0 left-0 w-64 h-64 bg-amber-50 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 opacity-60"></div>
-  <div class="absolute bottom-0 right-0 w-96 h-96 bg-brand-50 rounded-full blur-3xl translate-x-1/2 translate-y-1/2 opacity-60"></div>
 
   <div class="container mx-auto px-6 relative z-10">
     <div class="text-center mb-16 space-y-4">
@@ -34,18 +31,18 @@ const testimonials = [
         Lo que dicen nuestros clientes
       </h2>
       <p class="text-stone-600 max-w-2xl mx-auto text-lg">
-        La confianza de quienes ya disfrutan de nuestra miel es nuestro mejor aval.
+        La confianza de quienes ya disfrutan de nuestra miel de Las Hurdes y Sierra de Gata es nuestro mejor aval.
       </p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
       {testimonials.map((t) => (
         <div class="bg-stone-50 p-8 rounded-2xl border border-stone-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative group">
-          <Quote class="w-10 h-10 text-amber-200 absolute top-6 right-6 opacity-50 group-hover:opacity-100 transition-opacity" />
+          <Quote class="w-10 h-10 text-brand-300 absolute top-6 right-6 opacity-50 group-hover:opacity-100 transition-opacity" />
           
           <div class="flex gap-1 mb-6">
             {[...Array(t.rating)].map(() => (
-              <Star class="w-5 h-5 text-amber-500 fill-amber-500" />
+              <Star class="w-5 h-5 text-brand-300 fill-brand-300" />
             ))}
           </div>
 
@@ -54,7 +51,7 @@ const testimonials = [
           </p>
 
           <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full bg-brand-200 flex items-center justify-center text-brand-800 font-bold text-lg font-display">
+            <div class="w-12 h-12 rounded-full bg-brand-300 flex items-center justify-center text-stone-900 font-bold text-lg font-display">
               {t.name.charAt(0)}
             </div>
             <div>

@@ -5,46 +5,64 @@ interface Props {
   price: number;
   description: string;
   image: ImageMetadata;
+  badge?: string;
 }
 
-const { id, name, price, description, image } = Astro.props;
+const { id, name, price, description, image, badge } = Astro.props;
 import { ShoppingBag } from 'lucide-astro';
 import { Image } from 'astro:assets';
 ---
 
-<div class="product-card group relative flex flex-col overflow-hidden rounded-2xl bg-white border border-stone-100 shadow-md transition-all hover:shadow-xl">
-  <div class="aspect-square relative bg-stone-100">
+<div class="product-card group relative bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
+  
+  {badge && (
+    <div class="absolute top-4 left-4 z-20">
+      <span class={`
+        inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest
+        ${badge === 'Best Seller' ? 'bg-brand-300 text-stone-900 border border-brand-400' : 'bg-stone-900 text-white'}
+      `}>
+        {badge}
+      </span>
+    </div>
+  )}
+
+  <div class="relative aspect-[4/5] overflow-hidden bg-gradient-to-br from-stone-50 to-white px-8 pt-8 pb-0 flex items-center justify-center">
       <Image 
         src={image} 
         alt={name}
-        class="h-full w-full object-cover transition-transform duration-500 "
-        width={400}
+        class="w-full h-full object-contain filter drop-shadow-md transition-transform duration-700 group-hover:scale-105 group-hover:drop-shadow-xl"
+        width={500}
         densities={[1.5, 2]}
       />
-      <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-  </div>
-
-  <div class="p-6 flex flex-col flex-grow">
-    <div class="mb-4">
-        <h3 class="text-xl font-bold text-stone-800 font-display mb-2">{name}</h3>
-        <p class="text-stone-600 text-sm leading-relaxed line-clamp-2" title={description}>
-          {description}
-        </p>
-    </div>
-    
-    <div class="mt-auto flex items-center justify-between gap-4">
-        <span class="text-2xl font-bold text-amber-600">{price.toFixed(2)}€</span>
-        <button
-            class="add-to-cart-btn px-4 py-2 rounded-full bg-amber-500 hover:bg-amber-400 text-white font-semibold text-sm transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2 shadow-amber-500/20 shadow-lg"
+      
+      <!-- Hover Reveal Overlay with Action -->
+      <div class="absolute inset-x-0 bottom-0 p-6 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-10 bg-gradient-to-t from-white/90 via-white/50 to-transparent pt-12">
+         <button
+            class="add-to-cart-btn w-full py-4 rounded-xl bg-stone-900 hover:bg-brand-400 text-white hover:text-stone-900 font-bold text-sm tracking-wide uppercase transition-all flex items-center justify-center gap-3 shadow-xl"
             data-id={id}
             data-name={name}
             data-price={price}
             data-image={image.src}
         >
-            <ShoppingBag class="w-4.5 h-4.5" />
-            Añadir
+            <ShoppingBag class="w-5 h-5" />
+            <span>Añadir al Carrito</span>
         </button>
+      </div>
+  </div>
+
+  <div class="p-6 text-center space-y-3 relative z-20 bg-white">
+    <div class="space-y-1">
+        <h3 class="text-2xl font-display text-stone-900 font-medium group-hover:text-amber-600 transition-colors duration-300">
+          {name}
+        </h3>
+        <p class="text-2xl font-bold text-brand-600 font-display">
+          {price.toFixed(2)}€
+        </p>
     </div>
+    
+    <p class="text-stone-500 text-sm leading-relaxed line-clamp-2 px-2">
+      {description}
+    </p>
   </div>
 </div>
 
@@ -53,7 +71,10 @@ import { Image } from 'astro:assets';
 
   const buttons = document.querySelectorAll('.add-to-cart-btn');
   buttons.forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
+      // Prevent the click from propagating if necessary, though on a button it's usually fine
+      // e.stopPropagation(); 
+      
       const product = {
         id: btn.getAttribute('data-id'),
         name: btn.getAttribute('data-name'),
@@ -62,16 +83,24 @@ import { Image } from 'astro:assets';
       };
       addCartItem(product);
       
-      // Simple feedback animation
-      const originalText = btn.innerHTML;
-      btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg> Añadido`;
-      btn.classList.add('bg-green-500', 'text-white');
-      btn.classList.remove('bg-amber-500', 'text-black');
+      const originalHtml = btn.innerHTML;
+      const originalClasses = [...btn.classList];
+
+      // Feedback state
+      const feedbackClasses = ['bg-green-600', 'text-white', 'hover:bg-green-700', 'hover:text-white', '!translate-y-0']; // !translate-y-0 ensures it stays visible if we were to change logic
+      
+      btn.classList.remove('bg-stone-900', 'hover:bg-brand-400', 'hover:text-stone-900', 'text-white');
+      btn.classList.add(...feedbackClasses);
+      
+      btn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>
+        <span>Añadido</span>
+      `;
       
       setTimeout(() => {
-        btn.innerHTML = originalText;
-        btn.classList.remove('bg-green-500', 'text-white');
-        btn.classList.add('bg-amber-500', 'text-black');
+        btn.innerHTML = originalHtml;
+        btn.classList.remove(...feedbackClasses);
+         btn.classList.add('bg-stone-900', 'hover:bg-brand-400', 'hover:text-stone-900', 'text-white');
       }, 2000);
     });
   });

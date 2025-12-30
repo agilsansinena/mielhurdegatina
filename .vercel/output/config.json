@@ -30,6 +30,10 @@
 		{
 			"src": "^/exito/?$",
 			"dest": "_render"
+		},
+		{
+			"src": "^/robots\\.txt/?$",
+			"dest": "_render"
 		}
 	]
 }

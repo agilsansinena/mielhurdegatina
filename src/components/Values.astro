@@ -1,0 +1,49 @@
+---
+import { Heart, Mountain, ShieldCheck, Leaf } from 'lucide-astro';
+
+const values = [
+  {
+    icon: Heart,
+    title: "Pasión Familiar",
+    description: "Dos generaciones aprendiendo los secretos de la abeja. No es solo un trabajo, es nuestra forma de vida."
+  },
+  {
+    icon: Mountain,
+    title: "Entorno Puro",
+    description: "Nuestros apiarios están en el corazón de la Sierra de Gata y Las Hurdes, lejos de la contaminación y cultivos intensivos."
+  },
+  {
+    icon: ShieldCheck,
+    title: "Sin Adulterar",
+    description: "Miel 100% cruda. Nunca pasteurizamos ni mezclamos mieles de diferentes procedencias. Lo que ves es lo que hay."
+  },
+  {
+    icon: Leaf,
+    title: "Respeto Absoluto",
+    description: "Solo cosechamos el excedente. Primero son ellas, después nosotros. Respetamos sus ciclos naturales."
+  }
+];
+---
+
+<section class="py-24 bg-gradient-to-b from-white via-orange-50/50 to-white">
+    <div class="container mx-auto px-6">
+        <div class="text-center mb-16 space-y-4">
+            <span class="text-brand-600 font-bold tracking-widest uppercase text-sm">Por qué elegirnos</span>
+            <h2 class="text-4xl md:text-5xl font-display font-medium text-stone-900">
+              Honestidad en cada gota
+            </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+            {values.map(val => (
+                <div class="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-stone-100/50">
+                    <div class="w-14 h-14 bg-brand-100 rounded-2xl flex items-center justify-center text-brand-600 mb-6 rotate-3 hover:rotate-0 transition-transform">
+                        <val.icon class="w-7 h-7" />
+                    </div>
+                    <h3 class="text-xl font-bold text-stone-900 mb-3 font-display">{val.title}</h3>
+                    <p class="text-stone-600 text-sm leading-relaxed">{val.description}</p>
+                </div>
+            ))}
+        </div>
+    </div>
+</section>

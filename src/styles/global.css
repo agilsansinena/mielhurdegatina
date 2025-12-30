@@ -12,22 +12,32 @@
   --color-brand-800: #854d0e;
   --color-brand-900: #713f12;
   --color-brand-950: #422006;
-  
+
   --font-display: "Playfair Display", serif;
   --font-body: "Inter", sans-serif;
-  
+
   --animate-fade-in: fade-in 0.5s ease-out;
   --animate-slide-up: slide-up 0.5s ease-out;
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slide-up {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 body {
@@ -35,7 +45,12 @@ body {
   @apply bg-orange-50/30 text-stone-800 antialiased;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-display);
   @apply text-stone-900;
 }
