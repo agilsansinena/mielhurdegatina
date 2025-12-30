@@ -13,5 +13,4 @@ export default defineConfig({
 
   adapter: vercel(),
   output: "server",
-  // Force Vercel Rebuild 2024
 });
