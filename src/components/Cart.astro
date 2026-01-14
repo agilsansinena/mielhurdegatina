@@ -5,8 +5,8 @@ import { ShoppingCart, X, ArrowRight, Lock } from 'lucide-astro';
 <div id="cart-drawer" class="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-white border-l border-stone-100 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col font-sans">
     <!-- Header -->
     <div class="p-6 border-b border-stone-100 flex items-center justify-between bg-white/50 backdrop-blur-md">
-        <h2 class="text-2xl text-amber-900 !font-body flex items-center gap-2">
-            <ShoppingCart class="w-6 h-6 text-amber-500" />
+        <h2 class="text-2xl text-brand-900 !font-body flex items-center gap-2">
+            <ShoppingCart class="w-6 h-6 text-brand-500" />
             Tu Cesta
         </h2>
         <button id="close-cart-btn" class="p-2 text-stone-400 hover:text-stone-600 transition-colors rounded-full hover:bg-stone-100">
@@ -25,7 +25,7 @@ import { ShoppingCart, X, ArrowRight, Lock } from 'lucide-astro';
     <div class="p-6 border-t border-stone-100 bg-stone-50/50 backdrop-blur-md">
         <div class="flex justify-between items-center mb-6">
             <span class="text-stone-600">Total</span>
-            <span id="cart-total" class="text-3xl font-bold text-amber-600">0.00€</span>
+            <span id="cart-total" class="text-3xl font-bold text-brand-600">0.00€</span>
         </div>
             <div id="paypal-button-container" class="mt-4 w-full z-0"></div>
             <p class="text-center text-stone-400 text-xs mt-4 flex items-center justify-center gap-1">
@@ -213,7 +213,7 @@ import { ShoppingCart, X, ArrowRight, Lock } from 'lucide-astro';
                 <div class="flex flex-col items-center justify-center h-full text-stone-500">
                     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-basket mb-4 opacity-50"><path d="m5 11 4-7"/><path d="m19 11-4-7"/><path d="M2 11h20"/><path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8c.9 0 1.8-.7 2-1.6l1.7-7.4"/><path d="m9 11 1 9"/><path d="m4.5 11 .1 9"/><path d="m15 11-1 9"/></svg>
                     <p>Tu cesta está vacía</p>
-                    <button id="start-shopping-btn" class="mt-4 text-amber-600 hover:underline">Ver productos</button>
+                    <button id="start-shopping-btn" class="mt-4 text-brand-600 hover:underline">Ver productos</button>
                 </div>
             `;
             const startShoppingBtn = document.getElementById('start-shopping-btn');
@@ -228,7 +228,7 @@ import { ShoppingCart, X, ArrowRight, Lock } from 'lucide-astro';
             itemsContainer.innerHTML = items.map(item => {
                 total += item.price * item.quantity;
                 return `
-                    <div class="flex gap-4 p-4 rounded-xl bg-amber-50/50 border border-amber-100/50 hover:border-amber-200 transition-colors">
+                    <div class="flex gap-4 p-4 rounded-xl bg-brand-50/50 border border-brand-100/50 hover:border-brand-200 transition-colors">
                         <img src="${item.image}" alt="${item.name}" class="w-20 h-20 object-cover rounded-lg bg-stone-100" />
                         <div class="flex-1 flex flex-col justify-between">
                             <div class="flex justify-between items-start">
@@ -247,7 +247,7 @@ import { ShoppingCart, X, ArrowRight, Lock } from 'lucide-astro';
                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                                     </button>
                                 </div>
-                                <span class="font-bold text-amber-600 text-sm">${(item.price * item.quantity).toFixed(2)}€</span>
+                                <span class="font-bold text-brand-600 text-sm">${(item.price * item.quantity).toFixed(2)}€</span>
                             </div>
                         </div>
                     </div>
@@ -300,10 +300,10 @@ import { ShoppingCart, X, ArrowRight, Lock } from 'lucide-astro';
     background: rgba(0, 0, 0, 0.05);
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(217, 119, 6, 0.3);
+    background: rgba(202, 138, 4, 0.3);
     border-radius: 10px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(217, 119, 6, 0.6);
+    background: rgba(202, 138, 4, 0.6);
 }
 </style>

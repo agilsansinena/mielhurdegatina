@@ -3,43 +3,59 @@ import { Image } from 'astro:assets';
 import heroBg from '../assets/Torrecilla_de_los_Angeles.jpg';
 ---
 
-<section id="inicio" class="relative min-h-[100vh] flex items-center justify-center overflow-hidden">
+<section id="inicio" class="relative min-h-[100dvh] flex items-center justify-center overflow-hidden">
+  <!-- Background Image with Overlay -->
   <div class="absolute inset-0 z-0">
     <Image 
       src={heroBg} 
-      alt="Foto Torrecilla de los Angeles" 
-      class="w-full h-full object-cover blur-[1px]"
+      alt="Paisaje de Las Hurdes - Torrecilla de los Ángeles" 
+      class="w-full h-full object-cover scale-105"
       loading="eager"
       fetchpriority="high"
     />
-    <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-brand-950/20 to-brand-950/40 mix-blend-multiply"></div>
+    <!-- Gradient Overlay for better text contrast -->
+    <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-brand-950/90 mix-blend-multiply"></div>
+    <div class="absolute inset-0 bg-black/20"></div>
   </div>
 
   <!-- Content -->
-  <div class="relative z-10 container mx-auto px-6 text-center text-white space-y-8 animate-[slide-up_0.8s_ease-out]">
-    <div class="space-y-4">
-      <span class="inline-block py-1 px-3 border border-white/30 rounded-full text-xs font-semibold tracking-wider uppercase bg-white/10 backdrop-blur-sm">
+  <div class="relative z-10 container mx-auto px-4 md:px-6 text-center text-white space-y-8 md:space-y-10 animate-[slide-up_1s_ease-out]">
+    <div class="space-y-6">
+      <!-- Badge -->
+      <span class="inline-flex items-center gap-2 py-1.5 px-4 border border-brand-200/30 rounded-full text-xs md:text-sm font-medium tracking-widest uppercase bg-brand-950/30 backdrop-blur-md text-brand-100 shadow-lg">
+        <span class="w-1.5 h-1.5 rounded-full bg-brand-400 animate-pulse"></span>
         Artesanía Pura desde 1980
       </span>
-      <h1 class="text-5xl md:text-7xl font-display font-medium leading-tight !text-brand-300">
-        El Oro dulce de <br/>
-        <span class="text-brand-300 italic">Las Hurdes y Sierra de Gata</span>
+
+      <!-- Main Title -->
+      <h1 class="text-5xl md:text-7xl lg:text-8xl font-display font-medium leading-tight drop-shadow-2xl tracking-tight">
+        <span class="text-white block">
+          El Oro dulce de
+        </span>
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-200 via-brand-300 to-brand-200 italic pb-2 block drop-shadow-sm">
+          Las Hurdes y Sierra de Gata
+        </span>
       </h1>
-      <p class="text-lg md:text-xl text-stone-100 max-w-2xl mx-auto font-light leading-relaxed">
-        Descubre la auténtica miel cruda, cosechada con pasión en los bosques vírgenes de Extremadura. Sabor intenso, natural y saludable.
+
+      <!-- Description -->
+      <p class="text-lg md:text-xl text-stone-200 max-w-2xl mx-auto font-light leading-relaxed drop-shadow-md text-balance">
+        Descubre la auténtica miel cruda, cosechada con pasión en los bosques vírgenes de Extremadura. <span class="text-brand-100 font-normal">Sabor intenso, natural y saludable.</span>
       </p>
     </div>
 
-    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+    <!-- Buttons -->
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
       <a 
         href="#productos" 
-        class="min-w-[160px] bg-brand-300 hover:bg-brand-400 text-stone-900 px-8 py-3.5 rounded-full font-semibold transition-all shadow-[0_0_20px_rgba(234,179,8,0.3)] hover:shadow-[0_0_30px_rgba(234,179,8,0.5)] transform hover:-translate-y-1"
+        class="group relative min-w-[180px] bg-brand-400 hover:bg-brand-300 text-brand-950 px-8 py-4 rounded-full font-bold text-lg transition-all shadow-[0_0_20px_rgba(250,204,21,0.3)] hover:shadow-[0_0_35px_rgba(250,204,21,0.5)] transform hover:-translate-y-1 overflow-hidden"
       >
-        Ver Productos
+        <span class="relative z-10">Ver Productos</span>
+        <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
       </a>
+      
       <a 
         href="#historia" 
-        class="min-w-[160px] bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white px-8 py-3.5 rounded-full font-semibold transition-all transform hover:-translate-y-1"
+        class="min-w-[180px] bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/20 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all transform hover:-translate-y-1 hover:border-white/40 shadow-lg"
       >
         Nuestra Historia
       </a>
@@ -47,9 +63,11 @@ import heroBg from '../assets/Torrecilla_de_los_Angeles.jpg';
   </div>
 
   <!-- Scroll Indicator -->
-  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce opacity-70">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-    </svg>
+  <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce cursor-pointer opacity-80 hover:opacity-100 transition-opacity">
+    <a href="#productos" aria-label="Desplazarse hacia abajo">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-white drop-shadow-lg">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+      </svg>
+    </a>
   </div>
 </section>
