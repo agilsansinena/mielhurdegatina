@@ -53,9 +53,7 @@ export const POST: APIRoute = async ({ request }) => {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountInCents,
       currency: "eur",
-      automatic_payment_methods: {
-        enabled: true,
-      },
+      payment_method_types: ["card", "cpmt_1TOM1dGgqZV3ZRSvQv9Ez0DY"],
       metadata: {
         items: JSON.stringify(
           items.map((item: any) => ({
