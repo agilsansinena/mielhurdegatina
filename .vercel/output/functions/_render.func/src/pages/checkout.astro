@@ -1,0 +1,736 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { ArrowLeft, Lock, ShieldCheck, Truck, CreditCard, MapPin, ChevronRight } from 'lucide-astro';
+
+const STRIPE_PUBLIC_KEY = import.meta.env.PUBLIC_STRIPE_PUBLIC_KEY || import.meta.env.STRIPE_PUBLIC_KEY || '';
+---
+
+<Layout title="Finalizar Pedido - Miel HurdeGatina">
+  <div class="bg-stone-50 min-h-screen py-6">
+    <div class="max-w-7xl mx-auto px-4">
+      
+      <!-- Breadcrumb -->
+      <a href="/" class="inline-flex items-center gap-2 text-sm text-stone-600 hover:text-brand-600 mb-6">
+        <ArrowLeft class="w-4 h-4" />
+        Continuar comprando
+      </a>
+
+      <!-- Step Indicator -->
+      <div class="flex items-center justify-center gap-2 mb-8">
+        <div id="step-1-indicator" class="flex items-center gap-2 px-4 py-2 rounded-full bg-brand-500 text-white text-sm font-medium transition-all duration-300">
+          <MapPin class="w-4 h-4" />
+          <span>1. Dirección</span>
+        </div>
+        <ChevronRight class="w-5 h-5 text-stone-300" />
+        <div id="step-2-indicator" class="flex items-center gap-2 px-4 py-2 rounded-full bg-stone-200 text-stone-500 text-sm font-medium transition-all duration-300">
+          <CreditCard class="w-4 h-4" />
+          <span>2. Pago</span>
+        </div>
+      </div>
+
+      <!-- Main Grid -->
+      <div class="grid lg:grid-cols-3 gap-6">
+        
+        <!-- Left: Forms (2 columns) -->
+        <div class="lg:col-span-2 space-y-4">
+          
+          <!-- STEP 1: Shipping & Contact -->
+          <div id="step-1" class="space-y-4">
+            <form id="shipping-form" class="space-y-4" novalidate>
+              <!-- Contact -->
+              <div class="bg-white rounded-lg p-5 border border-stone-200">
+                <h2 class="font-bold text-stone-900 mb-3 text-base flex items-center gap-2">
+                  <span class="w-6 h-6 bg-brand-500 text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                  Datos de Contacto
+                </h2>
+                <div class="grid sm:grid-cols-2 gap-3">
+                  <div>
+                    <input type="email" name="email" placeholder="Email *" required class="checkout-input px-3 py-2.5 border border-stone-300 rounded text-sm w-full focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors" />
+                    <p class="field-error text-xs text-red-500 mt-1 hidden"></p>
+                  </div>
+                  <div>
+                    <input type="tel" name="phone" placeholder="Teléfono *" required class="checkout-input px-3 py-2.5 border border-stone-300 rounded text-sm w-full focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors" />
+                    <p class="field-error text-xs text-red-500 mt-1 hidden"></p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Shipping Address -->
+              <div class="bg-white rounded-lg p-5 border border-stone-200">
+                <h2 class="font-bold text-stone-900 mb-3 text-base flex items-center gap-2">
+                  <span class="w-6 h-6 bg-brand-500 text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                  Dirección de Envío
+                </h2>
+                <div class="space-y-3">
+                  <div class="grid sm:grid-cols-2 gap-3">
+                    <div>
+                      <input type="text" name="firstName" placeholder="Nombre *" required class="checkout-input px-3 py-2.5 border border-stone-300 rounded text-sm w-full focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors" />
+                      <p class="field-error text-xs text-red-500 mt-1 hidden"></p>
+                    </div>
+                    <div>
+                      <input type="text" name="lastName" placeholder="Apellidos *" required class="checkout-input px-3 py-2.5 border border-stone-300 rounded text-sm w-full focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors" />
+                      <p class="field-error text-xs text-red-500 mt-1 hidden"></p>
+                    </div>
+                  </div>
+                  <div>
+                    <input type="text" name="address" placeholder="Dirección completa *" required class="checkout-input px-3 py-2.5 border border-stone-300 rounded text-sm w-full focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors" />
+                    <p class="field-error text-xs text-red-500 mt-1 hidden"></p>
+                  </div>
+                  <div class="grid grid-cols-3 gap-3">
+                    <div>
+                      <input type="text" name="postalCode" placeholder="CP *" required class="checkout-input px-3 py-2.5 border border-stone-300 rounded text-sm w-full focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors" />
+                      <p class="field-error text-xs text-red-500 mt-1 hidden"></p>
+                    </div>
+                    <div class="col-span-2">
+                      <input type="text" name="city" placeholder="Ciudad *" required class="checkout-input px-3 py-2.5 border border-stone-300 rounded text-sm w-full focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors" />
+                      <p class="field-error text-xs text-red-500 mt-1 hidden"></p>
+                    </div>
+                  </div>
+                  <div>
+                    <input type="text" name="province" placeholder="Provincia *" required class="checkout-input px-3 py-2.5 border border-stone-300 rounded text-sm w-full focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors" />
+                    <p class="field-error text-xs text-red-500 mt-1 hidden"></p>
+                  </div>
+                  <select name="country" class="px-3 py-2.5 border border-stone-300 rounded text-sm w-full focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors">
+                    <option value="ES">España</option>
+                    <option value="PT">Portugal</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Billing checkbox -->
+              <div class="bg-white rounded-lg p-5 border border-stone-200">
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <input type="checkbox" id="same-billing" name="sameBilling" checked class="w-4 h-4 rounded border-stone-300 text-brand-500 focus:ring-brand-500" />
+                  <span class="text-sm text-stone-700">La dirección de facturación es la misma que la de envío</span>
+                </label>
+                
+                <!-- Billing Address (hidden by default) -->
+                <div id="billing-fields" class="hidden mt-4 space-y-3 pt-4 border-t border-stone-200">
+                  <h3 class="font-medium text-stone-900 text-sm mb-2">Dirección de Facturación</h3>
+                  <div class="grid sm:grid-cols-2 gap-3">
+                    <input type="text" name="billingFirstName" placeholder="Nombre *" class="checkout-input px-3 py-2.5 border border-stone-300 rounded text-sm w-full focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors" />
+                    <input type="text" name="billingLastName" placeholder="Apellidos *" class="checkout-input px-3 py-2.5 border border-stone-300 rounded text-sm w-full focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors" />
+                  </div>
+                  <input type="text" name="billingAddress" placeholder="Dirección completa *" class="checkout-input px-3 py-2.5 border border-stone-300 rounded text-sm w-full focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors" />
+                  <div class="grid grid-cols-3 gap-3">
+                    <input type="text" name="billingPostalCode" placeholder="CP *" class="checkout-input px-3 py-2.5 border border-stone-300 rounded text-sm w-full focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors" />
+                    <input type="text" name="billingCity" placeholder="Ciudad *" class="col-span-2 checkout-input px-3 py-2.5 border border-stone-300 rounded text-sm w-full focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors" />
+                  </div>
+                  <select name="billingCountry" class="px-3 py-2.5 border border-stone-300 rounded text-sm w-full focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-colors">
+                    <option value="ES">España</option>
+                    <option value="PT">Portugal</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Continue to Payment Button -->
+              <button 
+                type="submit" 
+                id="continue-to-payment-btn" 
+                class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-4 rounded-lg transition-all flex items-center justify-center gap-2 text-base"
+              >
+                Continuar al Pago
+                <ChevronRight class="w-5 h-5" />
+              </button>
+            </form>
+          </div>
+
+          <!-- STEP 2: Payment -->
+          <div id="step-2" class="hidden space-y-4">
+            <!-- Address Summary -->
+            <div class="bg-white rounded-lg p-5 border border-stone-200">
+              <div class="flex items-center justify-between mb-3">
+                <h2 class="font-bold text-stone-900 text-base flex items-center gap-2">
+                  <MapPin class="w-4 h-4 text-green-600" />
+                  Dirección de Envío
+                </h2>
+                <button id="edit-address-btn" type="button" class="text-sm text-brand-600 hover:text-brand-700 font-medium hover:underline">
+                  Editar
+                </button>
+              </div>
+              <p id="address-summary" class="text-sm text-stone-600"></p>
+            </div>
+
+            <!-- Payment Section -->
+            <div class="bg-white rounded-lg p-5 border border-stone-200">
+              <h2 class="font-bold text-stone-900 mb-4 text-base flex items-center gap-2">
+                <span class="w-6 h-6 bg-brand-500 text-white rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                Método de Pago
+              </h2>
+
+              <div class="flex items-center gap-2 mb-4 pb-3 border-b border-stone-100">
+                <CreditCard class="w-5 h-5 text-stone-500" />
+                <span class="text-sm font-medium text-stone-700">Tarjeta de Crédito o Débito</span>
+                <div class="ml-auto flex gap-1">
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" class="h-5" alt="Visa" />
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" class="h-5" alt="Mastercard" />
+                </div>
+              </div>
+              
+              <!-- Stripe Elements Container -->
+              <div id="stripe-payment-element" class="min-h-[100px] mb-4">
+                <div class="flex items-center justify-center py-8 text-stone-400">
+                  <svg class="animate-spin w-5 h-5 mr-2" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                  Cargando formulario de pago...
+                </div>
+              </div>
+
+              <!-- Error Message -->
+              <div id="stripe-error" class="hidden bg-red-50 border border-red-200 rounded-lg p-3 mb-4 text-sm text-red-700"></div>
+
+              <!-- Pay Button -->
+              <button 
+                type="button" 
+                id="pay-button" 
+                disabled
+                class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all text-base"
+              >
+                <span id="pay-button-text">PAGAR</span>
+                <span id="pay-button-spinner" class="hidden inline-flex items-center gap-2">
+                  <svg class="animate-spin w-5 h-5" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                  Procesando pago...
+                </span>
+              </button>
+            </div>
+
+            <!-- Back button -->
+            <button 
+              type="button" 
+              id="back-to-shipping-btn" 
+              class="w-full text-stone-600 hover:text-stone-800 font-medium py-3 rounded-lg transition-all flex items-center justify-center gap-2 text-sm"
+            >
+              <ArrowLeft class="w-4 h-4" />
+              Volver a dirección
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Summary -->
+        <div class="lg:col-span-1">
+          <div class="bg-white rounded-lg p-5 border border-stone-200 sticky top-6">
+            <h2 class="font-bold text-stone-900 mb-4 text-lg">Resumen del Pedido</h2>
+            
+            <!-- Items -->
+            <div id="cart-summary" class="space-y-3 mb-4 pb-4 border-b border-stone-200 max-h-48 overflow-y-auto">
+              <!-- JS -->
+            </div>
+
+            <!-- Subtotal -->
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-stone-600">Subtotal</span>
+              <span id="subtotal-amount" class="font-medium text-stone-900">0.00€</span>
+            </div>
+
+            <!-- Shipping -->
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-stone-600 flex items-center gap-1">
+                <Truck class="w-4 h-4" />
+                Envío
+              </span>
+              <span id="shipping-amount" class="font-medium text-stone-600">4.50€</span>
+            </div>
+            
+            <!-- Free shipping hint -->
+            <div id="checkout-free-shipping-hint" class="hidden text-xs text-green-600 text-right mb-2"></div>
+
+            <div class="border-t border-stone-200 pt-3 mb-4"></div>
+
+            <!-- Total -->
+            <div class="flex justify-between items-baseline mb-6">
+              <span class="text-lg font-bold text-stone-900">Total</span>
+              <span id="total-amount" class="text-2xl font-bold text-stone-900">0.00€</span>
+            </div>
+
+            <!-- Security -->
+            <div class="flex items-center justify-center gap-2 text-xs text-stone-500 mb-3">
+              <ShieldCheck class="w-4 h-4 text-green-600" />
+              <span>Pago 100% seguro con Stripe</span>
+            </div>
+
+            <!-- Payment logos -->
+            <div class="flex justify-center gap-3 opacity-60 grayscale">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" class="h-5" alt="Visa" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" class="h-5" alt="Mastercard" />
+              <Lock class="w-5 h-5 text-stone-400" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<!-- Stripe.js -->
+<script is:inline>
+  if (!document.getElementById('stripe-js')) {
+    const script = document.createElement('script');
+    script.id = 'stripe-js';
+    script.src = 'https://js.stripe.com/v3/';
+    script.async = true;
+    document.head.appendChild(script);
+  }
+</script>
+
+<script define:vars={{ STRIPE_PUBLIC_KEY }}>
+  window.__STRIPE_PUBLIC_KEY__ = STRIPE_PUBLIC_KEY;
+</script>
+
+<script>
+  import { cartItems, subtotal, total, shippingCost, SHIPPING_THRESHOLD, SHIPPING_COST_VALUE } from '../stores/cartStore';
+
+  interface CartItem {
+    id: string;
+    name: string;
+    price: number;
+    quantity: number;
+  }
+
+  // ─── DOM References ───────────────────────────────────
+  const summaryEl = document.getElementById('cart-summary');
+  const subtotalEl = document.getElementById('subtotal-amount');
+  const totalEl = document.getElementById('total-amount');
+  const shippingEl = document.getElementById('shipping-amount');
+  const freeShippingHint = document.getElementById('checkout-free-shipping-hint');
+  const shippingForm = document.getElementById('shipping-form') as HTMLFormElement;
+  const step1 = document.getElementById('step-1');
+  const step2 = document.getElementById('step-2');
+  const step1Indicator = document.getElementById('step-1-indicator');
+  const step2Indicator = document.getElementById('step-2-indicator');
+  const continueBtn = document.getElementById('continue-to-payment-btn');
+  const backBtn = document.getElementById('back-to-shipping-btn');
+  const editAddressBtn = document.getElementById('edit-address-btn');
+  const addressSummaryEl = document.getElementById('address-summary');
+  const payButton = document.getElementById('pay-button') as HTMLButtonElement;
+  const payButtonText = document.getElementById('pay-button-text');
+  const payButtonSpinner = document.getElementById('pay-button-spinner');
+  const stripeErrorEl = document.getElementById('stripe-error');
+  const sameBillingCheckbox = document.getElementById('same-billing') as HTMLInputElement;
+  const billingFields = document.getElementById('billing-fields');
+
+  let currentItems: CartItem[] = [];
+  let currentTotal = 0;
+  let currentShipping = 0;
+  let currentSubtotal = 0;
+  let savedFormData: Record<string, string> = {};
+
+  // Stripe vars
+  let stripe: any = null;
+  let elements: any = null;
+  let paymentElement: any = null;
+  let clientSecret: string = '';
+
+  // ─── Cart Summary ─────────────────────────────────────
+  function renderSummary(items: CartItem[]) {
+    currentItems = items;
+    if (!summaryEl) return;
+
+    if (items.length === 0) {
+      summaryEl.innerHTML = '<p class="text-sm text-stone-500 text-center py-4">Sin productos</p>';
+      return;
+    }
+
+    summaryEl.innerHTML = items.map(item => `
+      <div class="flex justify-between gap-3 text-sm">
+        <div class="flex-1">
+          <p class="font-medium text-stone-900">${item.name}</p>
+          <p class="text-xs text-stone-500">Cant: ${item.quantity}</p>
+        </div>
+        <p class="font-semibold text-stone-900">${(item.price * item.quantity).toFixed(2)}€</p>
+      </div>
+    `).join('');
+  }
+
+  cartItems.subscribe(renderSummary);
+
+  subtotal.subscribe(value => {
+    currentSubtotal = value;
+    if (subtotalEl) subtotalEl.textContent = value.toFixed(2) + '€';
+    
+    // Update free shipping hint
+    if (freeShippingHint) {
+      if (value > 0 && value < SHIPPING_THRESHOLD) {
+        const remaining = (SHIPPING_THRESHOLD - value).toFixed(2);
+        freeShippingHint.textContent = `¡Añade ${remaining}€ más para envío gratis!`;
+        freeShippingHint.classList.remove('hidden');
+      } else if (value >= SHIPPING_THRESHOLD) {
+        freeShippingHint.textContent = '✓ ¡Envío gratis aplicado!';
+        freeShippingHint.classList.remove('hidden');
+      } else {
+        freeShippingHint.classList.add('hidden');
+      }
+    }
+  });
+
+  shippingCost.subscribe(value => {
+    currentShipping = value;
+    if (shippingEl) {
+      if (value === 0 && currentSubtotal > 0) {
+        shippingEl.textContent = '¡GRATIS!';
+        shippingEl.classList.add('text-green-600', 'font-semibold');
+        shippingEl.classList.remove('text-stone-600');
+      } else if (value === 0) {
+        shippingEl.textContent = '—';
+        shippingEl.classList.remove('text-green-600', 'font-semibold');
+        shippingEl.classList.add('text-stone-600');
+      } else {
+        shippingEl.textContent = value.toFixed(2) + '€';
+        shippingEl.classList.remove('text-green-600', 'font-semibold');
+        shippingEl.classList.add('text-stone-600');
+      }
+    }
+  });
+
+  total.subscribe(value => {
+    currentTotal = value;
+    if (totalEl) totalEl.textContent = value.toFixed(2) + '€';
+    // Update pay button with total
+    if (payButtonText && currentTotal > 0) {
+      payButtonText.textContent = `PAGAR ${currentTotal.toFixed(2)}€`;
+    }
+  });
+
+  // ─── Billing toggle ───────────────────────────────────
+  sameBillingCheckbox?.addEventListener('change', () => {
+    if (sameBillingCheckbox.checked) {
+      billingFields?.classList.add('hidden');
+    } else {
+      billingFields?.classList.remove('hidden');
+    }
+  });
+
+  // ─── Step Navigation ──────────────────────────────────
+  function validateShippingForm(): boolean {
+    const formData = new FormData(shippingForm);
+    let isValid = true;
+    const requiredFields = ['email', 'phone', 'firstName', 'lastName', 'address', 'postalCode', 'city', 'province'];
+
+    requiredFields.forEach(field => {
+      const input = shippingForm.querySelector(`[name="${field}"]`) as HTMLInputElement;
+      const errorEl = input?.parentElement?.querySelector('.field-error') as HTMLElement;
+      
+      if (!input || !input.value.trim()) {
+        isValid = false;
+        input?.classList.add('border-red-400');
+        input?.classList.remove('border-stone-300');
+        if (errorEl) {
+          errorEl.textContent = 'Campo obligatorio';
+          errorEl.classList.remove('hidden');
+        }
+      } else {
+        input.classList.remove('border-red-400');
+        input.classList.add('border-stone-300');
+        if (errorEl) errorEl.classList.add('hidden');
+      }
+    });
+
+    // Email validation
+    const emailInput = shippingForm.querySelector('[name="email"]') as HTMLInputElement;
+    if (emailInput?.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)) {
+      isValid = false;
+      emailInput.classList.add('border-red-400');
+      const errorEl = emailInput.parentElement?.querySelector('.field-error') as HTMLElement;
+      if (errorEl) {
+        errorEl.textContent = 'Email no válido';
+        errorEl.classList.remove('hidden');
+      }
+    }
+
+    // Phone validation
+    const phoneInput = shippingForm.querySelector('[name="phone"]') as HTMLInputElement;
+    if (phoneInput?.value && phoneInput.value.replace(/\s/g, '').length < 9) {
+      isValid = false;
+      phoneInput.classList.add('border-red-400');
+      const errorEl = phoneInput.parentElement?.querySelector('.field-error') as HTMLElement;
+      if (errorEl) {
+        errorEl.textContent = 'Teléfono no válido';
+        errorEl.classList.remove('hidden');
+      }
+    }
+
+    // Validate billing if different
+    if (!sameBillingCheckbox.checked) {
+      const billingRequired = ['billingFirstName', 'billingLastName', 'billingAddress', 'billingPostalCode', 'billingCity'];
+      billingRequired.forEach(field => {
+        const input = shippingForm.querySelector(`[name="${field}"]`) as HTMLInputElement;
+        if (!input || !input.value.trim()) {
+          isValid = false;
+          input?.classList.add('border-red-400');
+          input?.classList.remove('border-stone-300');
+        } else {
+          input.classList.remove('border-red-400');
+          input.classList.add('border-stone-300');
+        }
+      });
+    }
+
+    return isValid;
+  }
+
+  function getShippingFormData(): Record<string, string> {
+    const formData = new FormData(shippingForm);
+    const data: Record<string, string> = {};
+    formData.forEach((value, key) => {
+      if (key !== 'sameBilling') {
+        data[key] = value as string;
+      }
+    });
+    data.sameBilling = sameBillingCheckbox.checked ? 'true' : 'false';
+    return data;
+  }
+
+  function goToStep2() {
+    savedFormData = getShippingFormData();
+
+    // Update address summary
+    if (addressSummaryEl) {
+      addressSummaryEl.innerHTML = `
+        <strong>${savedFormData.firstName} ${savedFormData.lastName}</strong><br>
+        ${savedFormData.address}<br>
+        ${savedFormData.postalCode} ${savedFormData.city} (${savedFormData.province || ''})<br>
+        ${savedFormData.country === 'ES' ? 'España' : 'Portugal'}<br>
+        <span class="text-stone-500">${savedFormData.email} · ${savedFormData.phone}</span>
+      `;
+    }
+
+    // Show/hide steps
+    step1?.classList.add('hidden');
+    step2?.classList.remove('hidden');
+
+    // Update indicators
+    step1Indicator?.classList.remove('bg-brand-500', 'text-white');
+    step1Indicator?.classList.add('bg-green-100', 'text-green-700');
+    step2Indicator?.classList.remove('bg-stone-200', 'text-stone-500');
+    step2Indicator?.classList.add('bg-brand-500', 'text-white');
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Initialize Stripe
+    initStripe();
+  }
+
+  function goToStep1() {
+    step2?.classList.add('hidden');
+    step1?.classList.remove('hidden');
+
+    step1Indicator?.classList.add('bg-brand-500', 'text-white');
+    step1Indicator?.classList.remove('bg-green-100', 'text-green-700');
+    step2Indicator?.classList.add('bg-stone-200', 'text-stone-500');
+    step2Indicator?.classList.remove('bg-brand-500', 'text-white');
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Form submission -> go to step 2
+  shippingForm?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (validateShippingForm()) {
+      goToStep2();
+    } else {
+      // Scroll to first error
+      const firstError = shippingForm.querySelector('.border-red-400') as HTMLElement;
+      firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  });
+
+  backBtn?.addEventListener('click', goToStep1);
+  editAddressBtn?.addEventListener('click', goToStep1);
+
+  // ─── Stripe Integration ───────────────────────────────
+  async function initStripe() {
+    // Wait for Stripe.js to load
+    let attempts = 0;
+    while (typeof (window as any).Stripe === 'undefined' && attempts < 20) {
+      await new Promise(r => setTimeout(r, 250));
+      attempts++;
+    }
+
+    if (typeof (window as any).Stripe === 'undefined') {
+      showStripeError('No se pudo cargar el procesador de pagos. Recarga la página.');
+      return;
+    }
+
+    const stripeKey = (window as any).__STRIPE_PUBLIC_KEY__;
+    if (!stripeKey || stripeKey.includes('TU_CLAVE')) {
+      showStripeError('Stripe no está configurado. Contacta al administrador.');
+      return;
+    }
+
+    try {
+      // Create PaymentIntent from server
+      const response = await fetch('/api/create-payment-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: currentItems,
+          subtotal: currentSubtotal,
+          shipping: currentShipping,
+          total: currentTotal,
+          customerData: savedFormData,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al crear la sesión de pago');
+      }
+
+      const { clientSecret: secret } = await response.json();
+      clientSecret = secret;
+
+      // Initialize Stripe Elements
+      stripe = (window as any).Stripe(stripeKey);
+      elements = stripe.elements({
+        clientSecret,
+        appearance: {
+          theme: 'stripe',
+          variables: {
+            colorPrimary: '#ca8a04',
+            colorBackground: '#ffffff',
+            colorText: '#1c1917',
+            colorDanger: '#ef4444',
+            fontFamily: 'system-ui, -apple-system, sans-serif',
+            borderRadius: '6px',
+            spacingUnit: '4px',
+          },
+          rules: {
+            '.Input': {
+              border: '1px solid #d6d3d1',
+              padding: '10px 12px',
+            },
+            '.Input:focus': {
+              border: '1px solid #ca8a04',
+              boxShadow: '0 0 0 1px #ca8a04',
+            },
+          },
+        },
+        locale: 'es',
+      });
+
+      // Create PaymentElement
+      paymentElement = elements.create('payment', {
+        layout: 'tabs',
+      });
+
+      const container = document.getElementById('stripe-payment-element');
+      if (container) {
+        container.innerHTML = '';
+        paymentElement.mount('#stripe-payment-element');
+      }
+
+      paymentElement.on('ready', () => {
+        if (payButton) payButton.disabled = false;
+      });
+
+      paymentElement.on('change', (event: any) => {
+        if (event.complete) {
+          hideStripeError();
+        }
+      });
+
+    } catch (error: any) {
+      console.error('Error inicializando Stripe:', error);
+      showStripeError(error.message || 'Error al inicializar el pago');
+    }
+  }
+
+  function showStripeError(message: string) {
+    if (stripeErrorEl) {
+      stripeErrorEl.textContent = message;
+      stripeErrorEl.classList.remove('hidden');
+    }
+  }
+
+  function hideStripeError() {
+    if (stripeErrorEl) {
+      stripeErrorEl.classList.add('hidden');
+    }
+  }
+
+  // ─── Pay Button ───────────────────────────────────────
+  payButton?.addEventListener('click', async () => {
+    if (!stripe || !elements || !clientSecret) {
+      showStripeError('Error: el formulario de pago no se ha cargado correctamente.');
+      return;
+    }
+
+    // Disable button & show spinner
+    payButton.disabled = true;
+    payButtonText?.classList.add('hidden');
+    payButtonSpinner?.classList.remove('hidden');
+    hideStripeError();
+
+    try {
+      const { error } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: window.location.origin + '/pedido-confirmado',
+          receipt_email: savedFormData.email,
+          shipping: {
+            name: `${savedFormData.firstName} ${savedFormData.lastName}`,
+            address: {
+              line1: savedFormData.address,
+              city: savedFormData.city,
+              state: savedFormData.province || '',
+              postal_code: savedFormData.postalCode,
+              country: savedFormData.country,
+            },
+            phone: savedFormData.phone,
+          },
+          payment_method_data: {
+            billing_details: {
+              name: savedFormData.sameBilling === 'true' 
+                ? `${savedFormData.firstName} ${savedFormData.lastName}`
+                : `${savedFormData.billingFirstName || savedFormData.firstName} ${savedFormData.billingLastName || savedFormData.lastName}`,
+              email: savedFormData.email,
+              phone: savedFormData.phone,
+              address: savedFormData.sameBilling === 'true'
+                ? {
+                    line1: savedFormData.address,
+                    city: savedFormData.city,
+                    postal_code: savedFormData.postalCode,
+                    country: savedFormData.country,
+                  }
+                : {
+                    line1: savedFormData.billingAddress || savedFormData.address,
+                    city: savedFormData.billingCity || savedFormData.city,
+                    postal_code: savedFormData.billingPostalCode || savedFormData.postalCode,
+                    country: savedFormData.billingCountry || savedFormData.country,
+                  },
+            },
+          },
+        },
+      });
+
+      if (error) {
+        // Payment failed — show error
+        if (error.type === 'card_error' || error.type === 'validation_error') {
+          showStripeError(error.message || 'Error en los datos de la tarjeta.');
+        } else {
+          showStripeError('Ha ocurrido un error inesperado. Inténtalo de nuevo.');
+        }
+        
+        payButton.disabled = false;
+        payButtonText?.classList.remove('hidden');
+        payButtonSpinner?.classList.add('hidden');
+      }
+      // If no error, Stripe redirects to return_url automatically
+    } catch (err: any) {
+      console.error('Error processing payment:', err);
+      showStripeError('Error al procesar el pago. Inténtalo de nuevo.');
+      payButton.disabled = false;
+      payButtonText?.classList.remove('hidden');
+      payButtonSpinner?.classList.add('hidden');
+    }
+  });
+
+  // Clear field errors on input
+  document.querySelectorAll('.checkout-input').forEach(input => {
+    input.addEventListener('input', () => {
+      (input as HTMLElement).classList.remove('border-red-400');
+      (input as HTMLElement).classList.add('border-stone-300');
+      const errorEl = (input as HTMLElement).parentElement?.querySelector('.field-error') as HTMLElement;
+      if (errorEl) errorEl.classList.add('hidden');
+    });
+  });
+</script>

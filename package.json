@@ -21,8 +21,13 @@
     "astro": "^5.16.5",
     "lucide-astro": "^0.556.0",
     "nanostores": "^1.1.0",
-    "resend": "^6.6.0",
+    "resend": "^6.9.1",
     "sharp": "^0.34.5",
+    "stripe": "^20.2.0",
     "tailwindcss": "^4.1.17"
+  },
+  "devDependencies": {
+    "@shikijs/core": "^4.0.2",
+    "@shikijs/vscode-textmate": "^10.0.2"
   }
 }

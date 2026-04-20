@@ -1,45 +1,82 @@
 ---
-import { ShoppingCart, X, ArrowRight, Lock } from 'lucide-astro';
+import { ShoppingCart, X, Lock, Truck, ShieldCheck } from 'lucide-astro';
 ---
 
-<div id="cart-drawer" class="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-white border-l border-stone-100 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col font-sans">
+<div id="cart-drawer" class="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-stone-50 border-l border-stone-200 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col font-sans">
     <!-- Header -->
-    <div class="p-6 border-b border-stone-100 flex items-center justify-between bg-white/50 backdrop-blur-md">
-        <h2 class="text-2xl text-brand-900 !font-body flex items-center gap-2">
-            <ShoppingCart class="w-6 h-6 text-brand-500" />
+    <div class="px-5 py-4 border-b border-stone-200 flex items-center justify-between bg-white">
+        <h2 class="text-lg font-bold text-stone-900 flex items-center gap-2">
+            <ShoppingCart class="w-5 h-5 text-brand-500" />
             Tu Cesta
+            <span id="cart-count-badge" class="hidden text-xs bg-brand-500 text-white rounded-full w-5 h-5 flex items-center justify-center font-bold">0</span>
         </h2>
-        <button id="close-cart-btn" class="p-2 text-stone-400 hover:text-stone-600 transition-colors rounded-full hover:bg-stone-100">
-            <X class="w-6 h-6" />
+        <button id="close-cart-btn" class="p-2 text-stone-400 hover:text-stone-600 transition-colors rounded-lg hover:bg-stone-100">
+            <X class="w-5 h-5" />
         </button>
     </div>
 
     <!-- Items Container -->
-    <div id="cart-items-container" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
+    <div id="cart-items-container" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
         <div class="text-center text-stone-500 py-10">
             <p>La cesta está vacía</p>
         </div>
     </div>
 
     <!-- Footer -->
-    <div class="p-6 border-t border-stone-100 bg-stone-50/50 backdrop-blur-md">
-        <div class="flex justify-between items-center mb-6">
-            <span class="text-stone-600">Total</span>
-            <span id="cart-total" class="text-3xl font-bold text-brand-600">0.00€</span>
+    <div class="border-t border-stone-200 bg-white">
+        <!-- Shipping progress bar -->
+        <div id="shipping-progress-wrap" class="px-5 pt-4 pb-2 hidden">
+            <div id="shipping-progress-bar-container" class="w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
+                <div id="shipping-progress-bar" class="bg-brand-500 h-1.5 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+            </div>
+            <p id="shipping-progress-text" class="text-xs text-stone-500 mt-1.5 text-center"></p>
         </div>
-            <div id="paypal-button-container" class="mt-4 w-full z-0"></div>
-            <p class="text-center text-stone-400 text-xs mt-4 flex items-center justify-center gap-1">
-                <Lock class="w-3 h-3" />
-                Pago seguro con PayPal
-            </p>
+
+        <!-- Totals -->
+        <div class="px-5 pt-3 pb-2 space-y-1.5">
+            <div class="flex justify-between items-center text-sm text-stone-500">
+                <span>Subtotal</span>
+                <span id="cart-subtotal" class="text-stone-700 font-medium">0.00€</span>
+            </div>
+            <div class="flex justify-between items-center text-sm text-stone-500">
+                <span class="flex items-center gap-1">
+                    <Truck class="w-3.5 h-3.5" />
+                    Envío
+                </span>
+                <span id="cart-shipping" class="font-medium text-stone-700">4.50€</span>
+            </div>
+            
+            <div class="mt-2 p-2 bg-amber-50 border border-amber-200 rounded text-[11px] leading-tight text-amber-700 flex gap-1.5 items-start">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span>Para <strong>Canarias, Baleares, Ceuta y Melilla</strong>, contáctanos antes del pago.</span>
+            </div>
+
+            <div class="flex justify-between items-center pt-2 border-t border-stone-200 mt-2">
+                <span class="font-bold text-stone-900">Total</span>
+                <span id="cart-total" class="text-lg font-bold text-stone-900">0.00€</span>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="px-5 pb-4 pt-2">
+            <a href="/checkout" id="checkout-btn" class="block w-full bg-brand-500 hover:bg-brand-600 text-white text-center font-bold py-3.5 rounded-lg transition-all shadow-sm hover:shadow-md text-sm">
+                TRAMITAR PEDIDO
+            </a>
+            <div class="flex items-center justify-center gap-3 mt-3 pb-1">
+                <div class="flex items-center gap-1 text-stone-400 text-xs">
+                    <ShieldCheck class="w-3.5 h-3.5 text-green-500" />
+                    <span>Pago seguro</span>
+                </div> 
+            </div>
+        </div>
     </div>
 </div>
 
 <!-- Backdrop -->
-<div id="cart-backdrop" class="fixed inset-0 bg-stone-900/20 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300"></div>
+<div id="cart-backdrop" class="fixed inset-0 bg-stone-900/30 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300"></div>
 
 <script>
-    import { cartItems, isCartOpen, removeCartItem, updateCartItemQuantity } from '../stores/cartStore';
+    import { cartItems, isCartOpen, removeCartItem, updateCartItemQuantity, subtotal, total, shippingCost, SHIPPING_THRESHOLD } from '../stores/cartStore';
 
     interface CartItem {
         id: string;
@@ -54,126 +91,12 @@ import { ShoppingCart, X, ArrowRight, Lock } from 'lucide-astro';
     const closeBtn = document.getElementById('close-cart-btn');
     const itemsContainer = document.getElementById('cart-items-container');
     const totalElement = document.getElementById('cart-total');
-    
-    declare global {
-        interface Window {
-            paypal: any;
-        }
-    }
-
-    let isPayPalLoaded = false;
-    let paypalButtonsComponent: any = null;
-
-    const PUBLIC_PAYPAL_CLIENT_ID = import.meta.env.PUBLIC_PAYPAL_CLIENT_ID || "sb";
-    
-    const loadPayPalScript = () => {
-        if (isPayPalLoaded) return Promise.resolve();
-        return new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = `https://www.paypal.com/sdk/js?client-id=${PUBLIC_PAYPAL_CLIENT_ID}&currency=EUR&enable-funding=card`; 
-            script.onload = () => {
-                isPayPalLoaded = true;
-                resolve(true);
-            };
-            script.onerror = reject;
-            document.head.appendChild(script);
-        });
-    };
-
-    const renderPayPalButtons = async () => {
-        const container = document.getElementById('paypal-button-container');
-        if (!container) return;
-        
-        container.innerHTML = ''; 
-
-        if (!window.paypal) {
-            try {
-                await loadPayPalScript();
-            } catch (err) {
-                console.error("Failed to load PayPal", err);
-                container.innerHTML = '<p class="text-red-500 text-sm text-center">Error cargando sistema de pagos</p>';
-                return;
-            }
-        }
-
-        if (window.paypal) {
-            window.paypal.Buttons({
-                style: {
-                    layout: 'vertical',
-                    color:  'gold',
-                    shape:  'rect',
-                    label:  'paypal'
-                },
-                createOrder: async (data: any, actions: any) => {
-                   try {
-                        const currentItems = cartItems.get();
-                        const response = await fetch('/api/create-paypal-order', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                cartItems: currentItems
-                            })
-                        });
-                        
-                        const orderData = await response.json();
-                        
-                        if (orderData.id) {
-                            return orderData.id;
-                        } else {
-                            console.error("Server API returned error:", orderData);
-                            const errorDetail = orderData?.details || orderData?.error || JSON.stringify(orderData);
-                            throw new Error(`Error en el servidor: ${errorDetail}`);
-                        }
-                   } catch (error) {
-                       console.error("Create Order Error catch:", error);
-                       alert("No se pudo iniciar el pago: " + error);
-                       throw error; 
-                   }
-                },
-                onApprove: async (data: any, actions: any) => {
-                    try {
-                        const response = await fetch('/api/capture-paypal-order', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                orderID: data.orderID
-                            })
-                        });
-
-                        const details = await response.json();
-
-                        if (details.error) {
-                            throw new Error(details.details || details.error);
-                        }
-
-                        if (details.status === 'COMPLETED') {
-                            alert('¡Pago completado con éxito! Gracias por tu compra ' + details.payer.name.given_name);
-                            // Clear cart
-                            cartItems.set([]); 
-                            // Close drawer
-                            isCartOpen.set(false);
-                            // Redirect to success page
-                            window.location.href = "/exito";
-                        } else {
-                            alert("El pago no se pudo completar. Estado: " + details.status);
-                        }
-
-                    } catch (error) {
-                        console.error("Capture Error:", error);
-                        alert("Hubo un error al procesar el pago: " + error);
-                    }
-                },
-                onError: (err: any) => {
-                    console.error("PayPal Error:", err);
-                    alert("Hubo un error con el pago. Por favor, inténtalo de nuevo.");
-                }
-            }).render('#paypal-button-container');
-        }
-    };
+    const subtotalElement = document.getElementById('cart-subtotal');
+    const shippingElement = document.getElementById('cart-shipping');
+    const countBadge = document.getElementById('cart-count-badge');
+    const shippingProgressWrap = document.getElementById('shipping-progress-wrap');
+    const shippingProgressBar = document.getElementById('shipping-progress-bar');
+    const shippingProgressText = document.getElementById('shipping-progress-text');
 
     // Toggle Cart
     isCartOpen.subscribe(isOpen => {
@@ -182,13 +105,6 @@ import { ShoppingCart, X, ArrowRight, Lock } from 'lucide-astro';
             cartBackdrop?.classList.remove('hidden');
             setTimeout(() => cartBackdrop?.classList.remove('opacity-0'), 10);
             document.body.style.overflow = 'hidden';
-            
-          
-             const items = cartItems.get();
-             if(items.length > 0) {
-                 renderPayPalButtons();
-             }
-
         } else {
             cartDrawer?.classList.add('translate-x-full');
             cartBackdrop?.classList.add('opacity-0');
@@ -204,57 +120,117 @@ import { ShoppingCart, X, ArrowRight, Lock } from 'lucide-astro';
     closeBtn?.addEventListener('click', closeCart);
     cartBackdrop?.addEventListener('click', closeCart);
 
+    // Update totals & shipping display
+    function updateTotals() {
+        const currentTotal = total.get();
+        const currentSubtotal = subtotal.get();
+        const currentShipping = shippingCost.get();
+
+        if (totalElement) totalElement.textContent = currentTotal.toFixed(2) + '€';
+        if (subtotalElement) subtotalElement.textContent = currentSubtotal.toFixed(2) + '€';
+
+        // Shipping display
+        if (shippingElement) {
+            if (currentShipping === 0 && currentSubtotal > 0) {
+                shippingElement.textContent = '¡GRATIS!';
+                shippingElement.classList.add('text-green-600');
+                shippingElement.classList.remove('text-stone-700');
+            } else if (currentSubtotal === 0) {
+                shippingElement.textContent = '—';
+                shippingElement.classList.remove('text-green-600');
+                shippingElement.classList.add('text-stone-700');
+            } else {
+                shippingElement.textContent = currentShipping.toFixed(2) + '€';
+                shippingElement.classList.remove('text-green-600');
+                shippingElement.classList.add('text-stone-700');
+            }
+        }
+
+        // Shipping progress bar
+        if (shippingProgressWrap && shippingProgressBar && shippingProgressText) {
+            if (currentSubtotal > 0 && currentSubtotal < SHIPPING_THRESHOLD) {
+                const progress = Math.min((currentSubtotal / SHIPPING_THRESHOLD) * 100, 100);
+                const remaining = (SHIPPING_THRESHOLD - currentSubtotal).toFixed(2);
+                shippingProgressBar.style.width = progress + '%';
+                shippingProgressText.innerHTML = `¡Añade <strong>${remaining}€</strong> más para <strong>envío gratis</strong>!`;
+                shippingProgressWrap.classList.remove('hidden');
+            } else if (currentSubtotal >= SHIPPING_THRESHOLD) {
+                shippingProgressBar.style.width = '100%';
+                shippingProgressBar.classList.remove('bg-brand-500');
+                shippingProgressBar.classList.add('bg-green-500');
+                shippingProgressText.innerHTML = '✓ <strong>¡Envío gratis aplicado!</strong>';
+                shippingProgressText.classList.remove('text-stone-500');
+                shippingProgressText.classList.add('text-green-600');
+                shippingProgressWrap.classList.remove('hidden');
+            } else {
+                shippingProgressWrap.classList.add('hidden');
+            }
+        }
+    }
+
     // Render Items
     cartItems.subscribe((items: CartItem[]) => {
-        if (!itemsContainer || !totalElement) return;
+        if (!itemsContainer) return;
+
+        // Update badge
+        const totalCount = items.reduce((sum, item) => sum + item.quantity, 0);
+        if (countBadge) {
+            if (totalCount > 0) {
+                countBadge.textContent = String(totalCount);
+                countBadge.classList.remove('hidden');
+                countBadge.classList.add('flex');
+            } else {
+                countBadge.classList.add('hidden');
+                countBadge.classList.remove('flex');
+            }
+        }
 
         if (items.length === 0) {
             itemsContainer.innerHTML = `
-                <div class="flex flex-col items-center justify-center h-full text-stone-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-basket mb-4 opacity-50"><path d="m5 11 4-7"/><path d="m19 11-4-7"/><path d="M2 11h20"/><path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8c.9 0 1.8-.7 2-1.6l1.7-7.4"/><path d="m9 11 1 9"/><path d="m4.5 11 .1 9"/><path d="m15 11-1 9"/></svg>
-                    <p>Tu cesta está vacía</p>
-                    <button id="start-shopping-btn" class="mt-4 text-brand-600 hover:underline">Ver productos</button>
+                <div class="flex flex-col items-center justify-center h-full text-stone-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="mb-4 opacity-40"><path d="m5 11 4-7"/><path d="m19 11-4-7"/><path d="M2 11h20"/><path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8c.9 0 1.8-.7 2-1.6l1.7-7.4"/><path d="m9 11 1 9"/><path d="m4.5 11 .1 9"/><path d="m15 11-1 9"/></svg>
+                    <p class="font-medium text-stone-500">Tu cesta está vacía</p>
+                    <p class="text-xs text-stone-400 mt-1">Añade productos para continuar</p>
+                    <button id="start-shopping-btn" class="mt-4 text-sm font-medium text-brand-600 hover:text-brand-700 hover:underline">Ver productos</button>
                 </div>
             `;
             const startShoppingBtn = document.getElementById('start-shopping-btn');
             startShoppingBtn?.addEventListener('click', closeCart);
-            totalElement.textContent = '0.00€';
-            
-            const container = document.getElementById('paypal-button-container');
-            if(container) container.innerHTML = '';
+            updateTotals();
 
         } else {
-            let total = 0;
             itemsContainer.innerHTML = items.map(item => {
-                total += item.price * item.quantity;
                 return `
-                    <div class="flex gap-4 p-4 rounded-xl bg-brand-50/50 border border-brand-100/50 hover:border-brand-200 transition-colors">
-                        <img src="${item.image}" alt="${item.name}" class="w-20 h-20 object-cover rounded-lg bg-stone-100" />
-                        <div class="flex-1 flex flex-col justify-between">
-                            <div class="flex justify-between items-start">
-                                <h3 class="font-bold text-stone-800 line-clamp-1 text-sm">${item.name}</h3>
-                                <button class="delete-btn text-stone-400 hover:text-red-500 transition-colors" data-id="${item.id}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
-                                </button>
-                            </div>
-                            <div class="flex justify-between items-end">
-                                <div class="flex items-center gap-3 bg-white rounded-lg p-1 border border-stone-200">
-                                    <button class="quantity-btn p-1 text-stone-500 hover:text-stone-800 rounded hover:bg-stone-100" data-id="${item.id}" data-action="decrease">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>
-                                    </button>
-                                    <span class="text-sm font-bold w-4 text-center text-stone-700">${item.quantity}</span>
-                                    <button class="quantity-btn p-1 text-stone-500 hover:text-stone-800 rounded hover:bg-stone-100" data-id="${item.id}" data-action="increase">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                    <div class="bg-white rounded-lg p-3 border border-stone-200 hover:border-stone-300 transition-colors">
+                        <div class="flex gap-3">
+                            <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded-md bg-stone-100 flex-shrink-0" />
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-start gap-2">
+                                    <h3 class="font-semibold text-stone-900 text-sm leading-tight line-clamp-2">${item.name}</h3>
+                                    <button class="delete-btn flex-shrink-0 p-1 text-stone-300 hover:text-red-500 transition-colors rounded hover:bg-red-50" data-id="${item.id}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                                     </button>
                                 </div>
-                                <span class="font-bold text-brand-600 text-sm">${(item.price * item.quantity).toFixed(2)}€</span>
+                                <p class="text-xs text-stone-400 mt-0.5">${item.price.toFixed(2)}€/ud</p>
+                                <div class="flex justify-between items-center mt-2">
+                                    <div class="flex items-center border border-stone-200 rounded-md overflow-hidden">
+                                        <button class="quantity-btn px-2 py-1 text-stone-500 hover:text-stone-800 hover:bg-stone-50 transition-colors text-xs" data-id="${item.id}" data-action="decrease">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg>
+                                        </button>
+                                        <span class="text-xs font-bold w-6 text-center text-stone-800 border-x border-stone-200 py-1 bg-stone-50">${item.quantity}</span>
+                                        <button class="quantity-btn px-2 py-1 text-stone-500 hover:text-stone-800 hover:bg-stone-50 transition-colors text-xs" data-id="${item.id}" data-action="increase">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                                        </button>
+                                    </div>
+                                    <span class="font-bold text-stone-900 text-sm">${(item.price * item.quantity).toFixed(2)}€</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 `;
             }).join('');
-            
-            totalElement.textContent = total.toFixed(2) + '€';
+
+            updateTotals();
 
             document.querySelectorAll('.delete-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
@@ -271,7 +247,7 @@ import { ShoppingCart, X, ArrowRight, Lock } from 'lucide-astro';
                     const id = target.getAttribute('data-id');
                     const action = target.getAttribute('data-action');
                     if (!id) return;
-                    
+
                     const currentItem = items.find(i => i.id === id);
                     if (!currentItem) return;
 
@@ -282,11 +258,6 @@ import { ShoppingCart, X, ArrowRight, Lock } from 'lucide-astro';
                     }
                 });
             });
-            
- 
-            if(cartDrawer && !cartDrawer.classList.contains('translate-x-full')) {
-                 renderPayPalButtons();
-            }
         }
     });
 
@@ -294,16 +265,16 @@ import { ShoppingCart, X, ArrowRight, Lock } from 'lucide-astro';
 
 <style>
 .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.05);
+    background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(202, 138, 4, 0.3);
+    background: rgba(0, 0, 0, 0.1);
     border-radius: 10px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(202, 138, 4, 0.6);
+    background: rgba(0, 0, 0, 0.2);
 }
 </style>
