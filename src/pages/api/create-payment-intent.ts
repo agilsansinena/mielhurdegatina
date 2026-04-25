@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import Stripe from "stripe";
+import { products } from "../../data/products";
 
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || "", {
   apiVersion: "2026-02-25.clover",
@@ -12,6 +13,15 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     const { items, subtotal, shipping, total, customerData } = await request.json();
 
+    const origin = request.headers.get("origin") || request.headers.get("referer") || "";
+    const isLocal = origin.includes("localhost") || origin.includes("127.0.0.1");
+    if (import.meta.env.PROD && origin && !origin.includes("mielhurdegatina.com") && !isLocal) {
+        return new Response(JSON.stringify({ error: "Origen no autorizado" }), {
+          status: 403,
+          headers: { "Content-Type": "application/json" },
+        });
+    }
+
     // Validate items
     if (!items || !Array.isArray(items) || items.length === 0) {
       return new Response(JSON.stringify({ error: "No hay productos en el pedido" }), {
@@ -20,11 +30,35 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    // Recalculate total on server for security
-    const serverSubtotal = items.reduce(
-      (sum: number, item: any) => sum + item.price * item.quantity,
-      0,
-    );
+    // Recalculate total on server for security using real DB prices
+    let serverSubtotal = 0;
+    const validatedItems = [];
+
+    for (const item of items) {
+      if (!item.id || typeof item.quantity !== "number" || item.quantity < 1 || item.quantity > 50) {
+        return new Response(JSON.stringify({ error: "Datos de producto inválidos" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      const product = products.find((p) => p.id === item.id);
+      if (!product) {
+        return new Response(JSON.stringify({ error: `Producto no encontrado: ${item.id}` }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      serverSubtotal += product.price * item.quantity;
+      validatedItems.push({
+        id: product.id,
+        name: product.title,
+        price: product.price,
+        quantity: item.quantity,
+      });
+    }
+
     const serverShipping =
       serverSubtotal >= SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
     const serverTotal = serverSubtotal + serverShipping;
@@ -58,7 +92,7 @@ export const POST: APIRoute = async ({ request }) => {
       },
       metadata: {
         items: JSON.stringify(
-          items.map((item: any) => ({
+          validatedItems.map((item: any) => ({
             id: item.id,
             name: item.name,
             price: item.price,
