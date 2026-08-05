@@ -2,7 +2,7 @@ export const products = [
   {
     id: "miel-bosque-2kg",
     title: "Miel Bosque 2kg",
-    price: 15,
+    price: 16,
     weight: "2kg",
     description:
       "Intensa, oscura y con un ligero toque amargo. Ideal para amantes de sabores fuertes.",

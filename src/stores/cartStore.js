@@ -51,7 +51,7 @@ export function updateCartItemQuantity(itemId, quantity) {
 import { computed } from "nanostores";
 
 export const SHIPPING_THRESHOLD = 60; // Envío gratis a partir de 60€
-export const SHIPPING_COST_VALUE = 4.50; // Gastos de envío fijos
+export const SHIPPING_COST_VALUE = 5.50; // Gastos de envío fijos
 
 export const subtotal = computed(cartItems, (items) => {
   return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
