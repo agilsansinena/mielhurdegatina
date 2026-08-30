@@ -94,9 +94,15 @@ import { ShoppingCart, X, Lock, Truck, ShieldCheck } from 'lucide-astro';
     const subtotalElement = document.getElementById('cart-subtotal');
     const shippingElement = document.getElementById('cart-shipping');
     const countBadge = document.getElementById('cart-count-badge');
+    const checkoutBtn = document.getElementById('checkout-btn');
     const shippingProgressWrap = document.getElementById('shipping-progress-wrap');
     const shippingProgressBar = document.getElementById('shipping-progress-bar');
     const shippingProgressText = document.getElementById('shipping-progress-text');
+
+    // Clean up legacy localStorage key if present
+    if (typeof window !== 'undefined' && localStorage.getItem('isCartOpen')) {
+        localStorage.removeItem('isCartOpen');
+    }
 
     // Toggle Cart
     isCartOpen.subscribe(isOpen => {
@@ -119,6 +125,7 @@ import { ShoppingCart, X, Lock, Truck, ShieldCheck } from 'lucide-astro';
 
     closeBtn?.addEventListener('click', closeCart);
     cartBackdrop?.addEventListener('click', closeCart);
+    checkoutBtn?.addEventListener('click', closeCart);
 
     // Update totals & shipping display
     function updateTotals() {

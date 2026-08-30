@@ -1,3 +1,4 @@
+import { atom, computed } from "nanostores";
 import { persistentAtom } from "@nanostores/persistent";
 
 // Cart store: array of { id, name, price, quantity, image }
@@ -6,10 +7,7 @@ export const cartItems = persistentAtom("cart", [], {
   decode: JSON.parse,
 });
 
-export const isCartOpen = persistentAtom("isCartOpen", false, {
-  encode: JSON.stringify,
-  decode: JSON.parse,
-});
+export const isCartOpen = atom(false);
 
 export function addCartItem(item) {
   const existingEntry = cartItems.get().find((i) => i.id === item.id);
@@ -48,7 +46,6 @@ export function updateCartItemQuantity(itemId, quantity) {
 }
 
 // Helper specific to formatting currency if needed, or just consume these raw values
-import { computed } from "nanostores";
 
 export const SHIPPING_THRESHOLD = 60; // Envío gratis a partir de 60€
 export const SHIPPING_COST_VALUE = 5.50; // Gastos de envío fijos
