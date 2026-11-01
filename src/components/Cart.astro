@@ -1,16 +1,17 @@
 ---
 import { ShoppingCart, X, Lock, Truck, ShieldCheck } from 'lucide-astro';
+import { shipping } from '../data/site';
 ---
 
-<div id="cart-drawer" class="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-stone-50 border-l border-stone-200 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col font-sans">
+<div id="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title" class="fixed inset-y-0 right-0 z-[70] w-full max-w-md bg-stone-50 border-l border-stone-200 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col font-sans">
     <!-- Header -->
     <div class="px-5 py-4 border-b border-stone-200 flex items-center justify-between bg-white">
-        <h2 class="text-lg font-bold text-stone-900 flex items-center gap-2">
+        <h2 id="cart-title" class="text-lg font-bold text-stone-900 flex items-center gap-2">
             <ShoppingCart class="w-5 h-5 text-brand-500" />
             Tu Cesta
             <span id="cart-count-badge" class="hidden text-xs bg-brand-500 text-white rounded-full w-5 h-5 flex items-center justify-center font-bold">0</span>
         </h2>
-        <button id="close-cart-btn" class="p-2 text-stone-400 hover:text-stone-600 transition-colors rounded-lg hover:bg-stone-100">
+        <button id="close-cart-btn" aria-label="Cerrar la cesta" class="p-2 text-stone-400 hover:text-stone-600 transition-colors rounded-lg hover:bg-stone-100">
             <X class="w-5 h-5" />
         </button>
     </div>
@@ -43,7 +44,7 @@ import { ShoppingCart, X, Lock, Truck, ShieldCheck } from 'lucide-astro';
                     <Truck class="w-3.5 h-3.5" />
                     Envío
                 </span>
-                <span id="cart-shipping" class="font-medium text-stone-700">4.50€</span>
+                <span id="cart-shipping" class="font-medium text-stone-700">{shipping.cost.toFixed(2)}€</span>
             </div>
             
             <div class="mt-2 p-2 bg-amber-50 border border-amber-200 rounded text-[11px] leading-tight text-amber-700 flex gap-1.5 items-start">
@@ -73,7 +74,7 @@ import { ShoppingCart, X, Lock, Truck, ShieldCheck } from 'lucide-astro';
 </div>
 
 <!-- Backdrop -->
-<div id="cart-backdrop" class="fixed inset-0 bg-stone-900/30 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300"></div>
+<div id="cart-backdrop" aria-hidden="true" class="fixed inset-0 bg-stone-900/30 backdrop-blur-sm z-[65] hidden opacity-0 transition-opacity duration-300"></div>
 
 <script>
     import { cartItems, isCartOpen, removeCartItem, updateCartItemQuantity, subtotal, total, shippingCost, SHIPPING_THRESHOLD } from '../stores/cartStore';
@@ -104,13 +105,27 @@ import { ShoppingCart, X, Lock, Truck, ShieldCheck } from 'lucide-astro';
         localStorage.removeItem('isCartOpen');
     }
 
+    // El carrito se guarda en localStorage: se escapa todo antes de pintarlo
+    // para que un valor manipulado no pueda inyectar HTML.
+    const escapeHtml = (value: unknown): string =>
+        String(value ?? '').replace(/[&<>"']/g, (char) =>
+            ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' } as Record<string, string>)[char]
+        );
+
+    const safeImage = (value: unknown): string => {
+        const src = String(value ?? '');
+        return /^(\/|https:\/\/)/.test(src) ? escapeHtml(src) : '/favicon.png';
+    };
+
     // Toggle Cart
     isCartOpen.subscribe(isOpen => {
+        cartDrawer?.setAttribute('aria-hidden', String(!isOpen));
         if (isOpen) {
             cartDrawer?.classList.remove('translate-x-full');
             cartBackdrop?.classList.remove('hidden');
             setTimeout(() => cartBackdrop?.classList.remove('opacity-0'), 10);
             document.body.style.overflow = 'hidden';
+            closeBtn?.focus();
         } else {
             cartDrawer?.classList.add('translate-x-full');
             cartBackdrop?.classList.add('opacity-0');
@@ -210,22 +225,22 @@ import { ShoppingCart, X, Lock, Truck, ShieldCheck } from 'lucide-astro';
                 return `
                     <div class="bg-white rounded-lg p-3 border border-stone-200 hover:border-stone-300 transition-colors">
                         <div class="flex gap-3">
-                            <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded-md bg-stone-100 flex-shrink-0" />
+                            <img src="${safeImage(item.image)}" alt="${escapeHtml(item.name)}" class="w-16 h-16 object-contain rounded-md bg-white border border-stone-100 flex-shrink-0 p-0.5" />
                             <div class="flex-1 min-w-0">
                                 <div class="flex justify-between items-start gap-2">
-                                    <h3 class="font-semibold text-stone-900 text-sm leading-tight line-clamp-2">${item.name}</h3>
-                                    <button class="delete-btn flex-shrink-0 p-1 text-stone-300 hover:text-red-500 transition-colors rounded hover:bg-red-50" data-id="${item.id}">
+                                    <h3 class="font-semibold text-stone-900 text-sm leading-tight line-clamp-2">${escapeHtml(item.name)}</h3>
+                                    <button class="delete-btn flex-shrink-0 p-1 text-stone-300 hover:text-red-500 transition-colors rounded hover:bg-red-50" data-id="${escapeHtml(item.id)}" aria-label="Eliminar ${escapeHtml(item.name)} de la cesta">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                                     </button>
                                 </div>
                                 <p class="text-xs text-stone-400 mt-0.5">${item.price.toFixed(2)}€/ud</p>
                                 <div class="flex justify-between items-center mt-2">
                                     <div class="flex items-center border border-stone-200 rounded-md overflow-hidden">
-                                        <button class="quantity-btn px-2 py-1 text-stone-500 hover:text-stone-800 hover:bg-stone-50 transition-colors text-xs" data-id="${item.id}" data-action="decrease">
+                                        <button class="quantity-btn px-2 py-1 text-stone-500 hover:text-stone-800 hover:bg-stone-50 transition-colors text-xs" data-id="${escapeHtml(item.id)}" data-action="decrease" aria-label="Quitar una unidad de ${escapeHtml(item.name)}">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg>
                                         </button>
                                         <span class="text-xs font-bold w-6 text-center text-stone-800 border-x border-stone-200 py-1 bg-stone-50">${item.quantity}</span>
-                                        <button class="quantity-btn px-2 py-1 text-stone-500 hover:text-stone-800 hover:bg-stone-50 transition-colors text-xs" data-id="${item.id}" data-action="increase">
+                                        <button class="quantity-btn px-2 py-1 text-stone-500 hover:text-stone-800 hover:bg-stone-50 transition-colors text-xs" data-id="${escapeHtml(item.id)}" data-action="increase" aria-label="Añadir una unidad de ${escapeHtml(item.name)}">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                                         </button>
                                     </div>

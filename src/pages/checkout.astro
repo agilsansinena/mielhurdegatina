@@ -1,11 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { ArrowLeft, Lock, ShieldCheck, Truck, CreditCard, MapPin, ChevronRight } from 'lucide-astro';
+import { shipping } from '../data/site';
 
 const STRIPE_PUBLIC_KEY = import.meta.env.PUBLIC_STRIPE_PUBLIC_KEY || import.meta.env.STRIPE_PUBLIC_KEY || '';
 ---
 
-<Layout title="Finalizar Pedido - Miel HurdeGatina">
+<Layout title="Finalizar Pedido - Miel HurdeGatina" noindex>
   <div class="bg-stone-50 min-h-screen py-6">
     <div class="max-w-7xl mx-auto px-4">
       
@@ -211,6 +212,11 @@ const STRIPE_PUBLIC_KEY = import.meta.env.PUBLIC_STRIPE_PUBLIC_KEY || import.met
               <!-- JS -->
             </div>
 
+            <!-- Aviso de cesta vacía -->
+            <div id="empty-cart-alert" class="hidden mb-4 bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+              Tu cesta está vacía. <a href="/#productos" class="font-semibold underline">Añade algún producto</a> para poder pagar.
+            </div>
+
             <!-- Subtotal -->
             <div class="flex justify-between text-sm mb-2">
               <span class="text-stone-600">Subtotal</span>
@@ -223,7 +229,7 @@ const STRIPE_PUBLIC_KEY = import.meta.env.PUBLIC_STRIPE_PUBLIC_KEY || import.met
                 <Truck class="w-4 h-4" />
                 Envío
               </span>
-              <span id="shipping-amount" class="font-medium text-stone-600">4.50€</span>
+              <span id="shipping-amount" class="font-medium text-stone-600">{shipping.cost.toFixed(2)}€</span>
             </div>
             
             <!-- Free shipping hint -->
@@ -305,22 +311,28 @@ const STRIPE_PUBLIC_KEY = import.meta.env.PUBLIC_STRIPE_PUBLIC_KEY || import.met
   const stripeErrorEl = document.getElementById('stripe-error');
   const sameBillingCheckbox = document.getElementById('same-billing') as HTMLInputElement;
   const billingFields = document.getElementById('billing-fields');
+  const emptyCartAlert = document.getElementById('empty-cart-alert');
 
   let currentItems: CartItem[] = [];
   let currentTotal = 0;
   let currentShipping = 0;
   let currentSubtotal = 0;
   let savedFormData: Record<string, string> = {};
+  let cartIsEmpty = true;
 
   // Stripe vars
   let stripe: any = null;
   let elements: any = null;
   let paymentElement: any = null;
   let clientSecret: string = '';
+  let lastPaymentKey = '';
+  let lastClientSecret = '';
 
   // ─── Cart Summary ─────────────────────────────────────
   function renderSummary(items: CartItem[]) {
     currentItems = items;
+    cartIsEmpty = items.length === 0;
+    if (emptyCartAlert) emptyCartAlert.classList.toggle('hidden', !cartIsEmpty);
     if (!summaryEl) return;
 
     if (items.length === 0) {
@@ -478,6 +490,15 @@ const STRIPE_PUBLIC_KEY = import.meta.env.PUBLIC_STRIPE_PUBLIC_KEY || import.met
   }
 
   function goToStep2() {
+    // No se puede pagar con la cesta vacía
+    if (cartIsEmpty || currentItems.length === 0) {
+      if (emptyCartAlert) {
+        emptyCartAlert.classList.remove('hidden');
+        emptyCartAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
     savedFormData = getShippingFormData();
 
     // Update address summary
@@ -556,28 +577,41 @@ const STRIPE_PUBLIC_KEY = import.meta.env.PUBLIC_STRIPE_PUBLIC_KEY || import.met
     }
 
     try {
-      // Create PaymentIntent from server
-      const response = await fetch('/api/create-payment-intent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          items: currentItems,
-          subtotal: currentSubtotal,
-          shipping: currentShipping,
-          total: currentTotal,
-          customerData: savedFormData,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Error al crear la sesión de pago');
+      // Si el importe no ha cambiado, se reutiliza el PaymentIntent:
+      // volver atrás y adelante no debe generar cobros pendientes en Stripe.
+      const paymentKey = JSON.stringify({ items: currentItems, total: currentTotal });
+      if (paymentElement && paymentKey === lastPaymentKey) {
+        return;
       }
 
-      const { clientSecret: secret } = await response.json();
-      clientSecret = secret;
+      if (paymentKey !== lastPaymentKey || !lastClientSecret) {
+        const response = await fetch('/api/create-payment-intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: currentItems,
+            subtotal: currentSubtotal,
+            shipping: currentShipping,
+            total: currentTotal,
+            customerData: savedFormData,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || 'Error al crear la sesión de pago');
+        }
+
+        const data = await response.json();
+        lastClientSecret = data.clientSecret;
+        lastPaymentKey = paymentKey;
+      }
+
+      clientSecret = lastClientSecret;
 
       // Initialize Stripe Elements
+      paymentElement?.unmount?.();
+      paymentElement = null;
       stripe = (window as any).Stripe(stripeKey);
       elements = stripe.elements({
         clientSecret,

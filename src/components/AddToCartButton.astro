@@ -1,0 +1,74 @@
+---
+import { ShoppingBag } from 'lucide-astro';
+import { getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  id: string;
+  name: string;
+  price: number;
+  image: ImageMetadata;
+  label?: string;
+  class?: string;
+}
+
+const { id, name, price, image, label = 'Añadir al Carrito', class: extraClass = '' } = Astro.props;
+
+// Miniatura optimizada (256 px WebP) para la cesta.
+// Con image.src a secas el navegador pedía el archivo original y en desarrollo daba 404.
+const thumbnail = await getImage({ src: image, width: 256, format: 'webp', quality: 80 });
+---
+
+<button
+  class={`add-to-cart-btn w-full py-3 rounded-xl bg-stone-900 hover:bg-brand-600 text-white font-semibold text-sm tracking-wide transition-all duration-300 flex items-center justify-center gap-2.5 shadow-sm hover:shadow-lg hover:shadow-brand-500/20 active:scale-[0.98] ${extraClass}`}
+  data-id={id}
+  data-name={name}
+  data-price={price}
+  data-image={thumbnail.src}
+  aria-label={`Añadir ${name} al carrito`}
+>
+  <ShoppingBag class="w-4 h-4" />
+  <span>{label}</span>
+</button>
+
+<script>
+  import { addCartItem } from '../stores/cartStore';
+
+  type CartButton = HTMLButtonElement & { dataset: DOMStringMap };
+
+  function bindAddToCart() {
+    document.querySelectorAll<CartButton>('.add-to-cart-btn').forEach((btn) => {
+      if (btn.dataset.bound === 'true') return;
+      btn.dataset.bound = 'true';
+
+      btn.addEventListener('click', () => {
+        addCartItem({
+          id: btn.getAttribute('data-id'),
+          name: btn.getAttribute('data-name'),
+          price: Number(btn.getAttribute('data-price')),
+          image: btn.getAttribute('data-image'),
+        });
+
+        // Feedback visual: estado verde durante 2 segundos
+        const originalHtml = btn.innerHTML;
+        const originalClass = btn.className;
+
+        btn.classList.remove('bg-stone-900', 'hover:bg-brand-600');
+        btn.classList.add('bg-green-600', 'hover:bg-green-700');
+        btn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          <span>¡Añadido!</span>
+        `;
+
+        setTimeout(() => {
+          btn.innerHTML = originalHtml;
+          btn.className = originalClass;
+        }, 2000);
+      });
+    });
+  }
+
+  bindAddToCart();
+  // Los botones que se añadan más tarde (por ejemplo, en el carrito) también funcionan.
+  document.addEventListener('astro:page-load', bindAddToCart);
+</script>

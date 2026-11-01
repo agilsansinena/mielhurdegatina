@@ -1,0 +1,104 @@
+---
+export const prerender = true;
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { getCollection } from 'astro:content';
+import { breadcrumbJsonLd } from '../../lib/seo';
+import { products } from '../../data/products';
+
+const posts = (await getCollection('blog')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+
+const formatDate = (date: Date) =>
+  new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
+
+const jsonLd = [
+  breadcrumbJsonLd([
+    { name: 'Inicio', path: '/' },
+    { name: 'Blog', path: '/blog' },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    name: 'Blog de Miel HurdeGatina',
+    description: 'Artículos sobre miel cruda, miel de Las Hurdes y apicultura artesanal.',
+    url: 'https://www.mielhurdegatina.com/blog',
+    blogPost: posts.map((post) => ({
+      '@type': 'BlogPosting',
+      headline: post.data.title,
+      url: `https://www.mielhurdegatina.com/blog/${post.id}`,
+      datePublished: post.data.date.toISOString(),
+    })),
+  },
+];
+---
+
+<Layout
+  title="Blog: miel cruda y miel de Las Hurdes | Miel HurdeGatina"
+  description="Artículos sobre miel cruda, miel de Las Hurdes, apicultura artesanal y cómo reconocer una miel de calidad."
+  jsonLd={jsonLd}
+>
+  <Header solid />
+  <main class="pt-28 pb-20 bg-gradient-to-b from-white via-brand-50/20 to-white">
+    <div class="container mx-auto px-6 max-w-4xl">
+      <nav aria-label="Migas de pan" class="text-sm text-stone-500 mb-8">
+        <a href="/" class="hover:text-brand-600">Inicio</a>
+        <span class="mx-2 text-stone-300">/</span>
+        <span class="text-stone-700">Blog</span>
+      </nav>
+
+      <h1 class="text-4xl md:text-5xl font-display font-medium text-stone-900 mb-4">
+        Miel, colmenas y Las Hurdes
+      </h1>
+      <p class="text-lg text-stone-600 mb-14 max-w-2xl">
+        Lo que hemos aprendido en cinco generaciones cuidando abejas: cómo se hace la miel,
+        cómo reconocer una miel de verdad y por qué la de esta comarca sabe distinta.
+      </p>
+
+      <div class="space-y-10">
+        {posts.map((post) => (
+          <article class="border-b border-stone-100 pb-10 last:border-0">
+            <div class="flex flex-col sm:flex-row gap-6">
+              <a href={`/blog/${post.id}`} class="sm:w-56 shrink-0 sm:self-start overflow-hidden rounded-xl bg-stone-100">
+                <img
+                  src={post.data.image}
+                  alt={`Portada del artículo: ${post.data.title}`}
+                  width="1200"
+                  height="630"
+                  loading="lazy"
+                  decoding="async"
+                  class="w-full aspect-[16/10] object-cover hover:scale-105 transition-transform duration-500"
+                />
+              </a>
+              <div>
+                <p class="text-xs uppercase tracking-widest text-brand-600 font-semibold mb-2">
+                  {formatDate(post.data.date)}{post.data.readingTime && ` · ${post.data.readingTime} de lectura`}
+                </p>
+                <h2 class="text-2xl md:text-3xl font-display font-medium text-stone-900 mb-3">
+                  <a href={`/blog/${post.id}`} class="hover:text-brand-700 transition-colors">{post.data.title}</a>
+                </h2>
+                <p class="text-stone-600 leading-relaxed mb-4">{post.data.description}</p>
+                <a href={`/blog/${post.id}`} class="text-brand-700 font-semibold hover:text-brand-800">
+                  Leer el artículo →
+                </a>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div class="mt-16 bg-brand-50 border border-brand-100 rounded-2xl p-8 text-center">
+        <h2 class="text-2xl font-display font-medium text-stone-900 mb-3">Prueba nuestra miel</h2>
+        <p class="text-stone-600 mb-6">
+          Miel cruda de Las Hurdes en {products.length} formatos, directa del apicultor.
+        </p>
+        <a href="/productos" class="inline-block bg-brand-500 hover:bg-brand-600 text-white font-bold px-8 py-3 rounded-full transition-colors">
+          Ver productos
+        </a>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>

@@ -1,28 +1,141 @@
 ---
 export const prerender = true;
 import Layout from '../layouts/Layout.astro';
+import { site, shipping } from '../data/site';
+
+const updatedAt = new Date().toLocaleDateString('es-ES', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+
+const shippingCost = shipping.cost.toFixed(2).replace('.', ',');
+const freeShipping = shipping.threshold;
 ---
 
-<Layout title="Términos y Condiciones | Miel HurdeGatina">
-    <div class="pt-32 pb-16 px-4 bg-stone-50 min-h-screen">
-        <div class="max-w-3xl mx-auto bg-white p-8 md:p-12 rounded-2xl shadow-sm border border-stone-100">
-            <h1 class="text-4xl font-display font-bold text-amber-900 mb-8">Términos y Condiciones</h1>
-            
-            <div class="prose prose-stone max-w-none text-stone-600">
-                <p>Bienvenido a Miel HurdeGatina. Al utilizar este sitio web, aceptas cumplir los siguientes términos y condiciones.</p>
+<Layout
+  title="Términos y Condiciones | Miel HurdeGatina"
+  description="Condiciones de compra de Miel HurdeGatina: precios, envíos, pagos con tarjeta, devoluciones y garantía."
+>
+  <div class="pt-32 pb-16 px-4 bg-stone-50 min-h-screen">
+    <div class="max-w-3xl mx-auto bg-white p-8 md:p-12 rounded-2xl shadow-sm border border-stone-100">
+      <h1 class="text-4xl font-display font-bold text-amber-900 mb-3">Términos y Condiciones</h1>
+      <p class="text-sm text-stone-500 mb-8">Última actualización: {updatedAt}</p>
 
-                <h3 class="text-xl font-bold text-stone-800 mt-6 mb-2">1. Productos</h3>
-                <p>Nuestra miel es un producto natural. Puede cristalizarse con el tiempo, lo cual es signo de pureza. Las imágenes son referenciales.</p>
+      <div class="prose prose-stone max-w-none text-stone-600">
+        <h3 class="text-xl font-bold text-stone-800 mb-2">1. Datos del vendedor</h3>
+        <ul class="list-disc pl-6 space-y-1">
+          <li><strong>Titular:</strong> {site.legal.ownerName}</li>
+          {site.legal.nif && <li><strong>NIF/CIF:</strong> {site.legal.nif}</li>}
+          <li><strong>Domicilio:</strong> {site.address.street}, {site.address.postalCode} {site.address.locality} ({site.address.region}), España</li>
+          <li><strong>Email:</strong> <a href={`mailto:${site.contactEmail}`} class="text-brand-700 hover:underline">{site.contactEmail}</a></li>
+          <li><strong>Teléfono:</strong> {site.phoneDisplay}</li>
+        </ul>
 
-                <h3 class="text-xl font-bold text-stone-800 mt-6 mb-2">2. Precios y Pagos</h3>
-                <p>Todos los precios están en Euros (€) e incluyen impuestos aplicables. Nos reservamos el derecho de cambiar los precios en cualquier momento. El pago se realiza de forma segura a través de PayPal.</p>
+        <h3 class="text-xl font-bold text-stone-800 mt-8 mb-2">2. Objeto</h3>
+        <p>
+          Estas condiciones regulan la compra de miel y productos apícolas a través de este sitio web.
+          Al realizar un pedido aceptas expresamente estas condiciones, que puedes leer, guardar e
+          imprimir antes de confirmar la compra.
+        </p>
 
-                <h3 class="text-xl font-bold text-stone-800 mt-6 mb-2">3. Envíos</h3>
-                <p>Realizamos envíos a la dirección proporcionada. Los tiempos de entrega son estimados y no garantizados.</p>
+        <h3 class="text-xl font-bold text-stone-800 mt-8 mb-2">3. Productos</h3>
+        <p>
+          Nuestra miel es un producto natural. Puede cristalizarse con el tiempo, lo cual es signo de
+          pureza y no un defecto. Las imágenes son orientativas; el tarro y la etiqueta pueden variar
+          ligeramente.
+        </p>
 
-                <h3 class="text-xl font-bold text-stone-800 mt-6 mb-2">4. Propiedad Intelectual</h3>
-                <p>Todo el contenido de este sitio (imágenes, textos, logos) es propiedad de Miel HurdeGatina.</p>
-            </div>
-        </div>
+        <h3 class="text-xl font-bold text-stone-800 mt-8 mb-2">4. Precios y gastos de envío</h3>
+        <ul class="list-disc pl-6 space-y-1">
+          <li>Todos los precios se muestran en euros e <strong>incluyen el IVA</strong> aplicable.</li>
+          <li>Gastos de envío: <strong>{shippingCost} €</strong> por pedido.</li>
+          <li><strong>Envío gratuito</strong> en pedidos de {freeShipping} € o más.</li>
+          <li>El importe total, con los gastos de envío aplicados, se muestra antes de pagar y es el que se cobra.</li>
+        </ul>
+
+        <h3 class="text-xl font-bold text-stone-800 mt-8 mb-2">5. Forma de pago</h3>
+        <p>
+          El pago se realiza con <strong>tarjeta de crédito o débito</strong> a través de
+          <strong>Stripe</strong>, un proveedor certificado PCI DSS de nivel 1. Los datos de tu tarjeta
+          se envían cifrados directamente a Stripe: en ningún momento pasan por nuestros servidores ni
+          los almacenamos. No se admiten otras formas de pago en la tienda online.
+        </p>
+
+        <h3 class="text-xl font-bold text-stone-800 mt-8 mb-2">6. Envíos y plazos de entrega</h3>
+        <ul class="list-disc pl-6 space-y-1">
+          <li>Preparamos los pedidos en <strong>24-48 horas laborables</strong>.</li>
+          <li>Entrega habitual en península: <strong>2-3 días hábiles</strong>. Recibirás un email con el seguimiento.</li>
+          <li>Los plazos son estimados y pueden verse afectados por festivos o incidencias del transporte.</li>
+          <li>Para <strong>Canarias, Baleares, Ceuta y Melilla</strong>, contáctanos antes de comprar: las tarifas y los plazos son distintos.</li>
+        </ul>
+
+        <h3 class="text-xl font-bold text-stone-800 mt-8 mb-2">7. Derecho de desistimiento</h3>
+        <p>
+          Como consumidor tienes derecho a desistir de la compra en un plazo de <strong>14 días
+          naturales</strong> desde la recepción del pedido, sin necesidad de justificación. Para
+          ejercerlo, escríbenos a
+          <a href={`mailto:${site.contactEmail}`} class="text-brand-700 hover:underline">{site.contactEmail}</a>
+          indicando tu número de pedido. El producto debe devolverse sin abrir, en perfecto estado y en
+          su embalaje original; los gastos de devolución corren por tu cuenta salvo producto defectuoso.
+        </p>
+        <p>
+          Quedan excluidos del desistimiento los productos precintados que no sean aptos para su
+          devolución por razones de protección de la salud o de higiene y que hayan sido desprecintados,
+          conforme al artículo 103.d) del Real Decreto Legislativo 1/2007.
+        </p>
+        <p>
+          Te reembolsaremos el importe por el mismo medio de pago en un plazo máximo de 14 días desde
+          que recibamos el producto o la prueba de su devolución.
+        </p>
+
+        <h3 class="text-xl font-bold text-stone-800 mt-8 mb-2">8. Productos dañados o incorrectos</h3>
+        <p>
+          Si el pedido llega dañado o no coincide con lo comprado, envíanos una foto en las primeras
+          24-48 horas a <a href={`mailto:${site.contactEmail}`} class="text-brand-700 hover:underline">{site.contactEmail}</a>
+          o por WhatsApp. Reponemos el producto sin coste o devolvemos el importe, a tu elección.
+        </p>
+
+        <h3 class="text-xl font-bold text-stone-800 mt-8 mb-2">9. Garantía legal</h3>
+        <p>
+          Todos los productos cuentan con la garantía legal de conformidad de 3 años prevista en el
+          Real Decreto Legislativo 1/2007. Si el producto no es conforme, tienes derecho a su
+          reparación, sustitución, rebaja del precio o resolución del contrato.
+        </p>
+
+        <h3 class="text-xl font-bold text-stone-800 mt-8 mb-2">10. Propiedad intelectual</h3>
+        <p>
+          Todos los contenidos de este sitio (textos, imágenes, logotipos y diseño) son propiedad de
+          {site.legal.ownerName} o se utilizan con autorización. Queda prohibida su reproducción sin
+          permiso expreso.
+        </p>
+
+        <h3 class="text-xl font-bold text-stone-800 mt-8 mb-2">11. Responsabilidad</h3>
+        <p>
+          No seremos responsables de los retrasos imputables al transportista, a causas de fuerza mayor
+          o a datos de envío incorrectos facilitados por el cliente. Nada en estas condiciones limita
+          los derechos que la normativa de consumo reconoce al consumidor.
+        </p>
+
+        <h3 class="text-xl font-bold text-stone-800 mt-8 mb-2">12. Ley aplicable y resolución de conflictos</h3>
+        <p>
+          Estas condiciones se rigen por la legislación española. Puedes acudir a los tribunales de tu
+          domicilio como consumidor. También existe la plataforma europea de resolución de litigios en
+          línea:
+          <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer" class="text-brand-700 hover:underline">ec.europa.eu/consumers/odr</a>.
+        </p>
+
+        <h3 class="text-xl font-bold text-stone-800 mt-8 mb-2">13. Modificaciones</h3>
+        <p>
+          Podemos actualizar estos términos para adaptarlos a cambios legales o del servicio. Se
+          aplicarán las condiciones publicadas en el momento de realizar cada pedido.
+        </p>
+      </div>
+
+      <div class="mt-10 pt-6 border-t border-stone-200 flex flex-wrap gap-4 text-sm">
+        <a href="/politica-de-privacidad" class="text-brand-700 hover:underline">Política de Privacidad</a>
+        <a href="/" class="text-stone-600 hover:text-stone-900">Volver a la tienda</a>
+      </div>
     </div>
+  </div>
 </Layout>

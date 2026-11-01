@@ -1,14 +1,15 @@
 ---
 import { Image } from 'astro:assets';
-import { MapPin, Phone, Mail, Facebook, Twitter, Instagram } from 'lucide-astro';
+import { MapPin, Phone, Mail, Instagram } from 'lucide-astro';
 import logoImg from '../assets/logo-rgb-A85MJZK7J2SBMK2k.avif';
+import { site } from '../data/site';
 ---
 
 <footer id="contacto" class="bg-stone-100 text-stone-600 py-16">
   <div class="container mx-auto px-6">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 border-b border-stone-200 pb-12">
       <!-- Brand -->
-      <div class="space-y-6">
+      <div class="space-y-6 lg:col-span-2">
         <div class="flex items-center gap-3">
             <Image src={logoImg} alt="logo" class="h-10 w-auto opacity-80" />
             <span class="text-lg font-bold text-stone-800">Miel HurdeGatina</span>
@@ -18,44 +19,46 @@ import logoImg from '../assets/logo-rgb-A85MJZK7J2SBMK2k.avif';
         </p>
         <!-- Social Share -->
         <div class="flex gap-4 pt-2">
-            <a href="https://instagram.com/mielhurdegatina" target="_blank" rel="noopener noreferrer" class="p-2 bg-stone-100 rounded-full hover:bg-brand-100 text-stone-600 hover:text-brand-500 transition-colors" aria-label="Síguenos en Instagram">
+            <a href={site.social.instagram} target="_blank" rel="noopener noreferrer" class="p-2 bg-stone-100 rounded-full hover:bg-brand-100 text-stone-600 hover:text-brand-500 transition-colors" aria-label="Síguenos en Instagram">
                 <Instagram class="w-5 h-5" />
             </a>
         </div>
       </div>
 
       <!-- Links -->
-      <div class="lg:col-start-3">
+      <div>
         <span class="block text-stone-800 font-bold mb-6">Enlaces Rápidos</span>
         <ul class="space-y-3 text-sm">
-          <li><a href="#" class="hover:text-brand-400 transition-colors">Inicio</a></li>
-          <li><a href="#productos" class="hover:text-brand-400 transition-colors">Tienda</a></li>
-          <li><a href="#historia" class="hover:text-brand-400 transition-colors">Sobre Nosotros</a></li>
+          <li><a href="/" class="hover:text-brand-400 transition-colors">Inicio</a></li>
+          <li><a href="/productos" class="hover:text-brand-400 transition-colors">Productos</a></li>
+          <li><a href="/productos" class="hover:text-brand-400 transition-colors">Comprar miel</a></li>
+          <li><a href="/blog" class="hover:text-brand-400 transition-colors">Blog</a></li>
+          <li><a href="/#historia" class="hover:text-brand-400 transition-colors">Sobre nosotros</a></li>
         </ul>
       </div>
 
       <!-- Contact -->
-      <div class="lg:col-start-4">
+      <div>
         <span class="block text-stone-800 font-bold mb-6">Contacto</span>
         <ul class="space-y-4 text-sm">
           <li class="flex items-start gap-3">
             <MapPin class="w-5 h-5 text-brand-400 shrink-0" />
-            Torrecilla de los Ángeles, Extremadura, España
+            <span>{site.address.locality}, {site.address.region}, España</span>
           </li>
           <li class="flex items-start gap-3">
             <Phone class="w-5 h-5 text-brand-400 shrink-0" />
-            +34 659393507
+            <a href={`tel:${site.phone}`} class="hover:text-brand-500 transition-colors">{site.phoneDisplay}</a>
           </li>
           <li class="flex items-start gap-3">
             <Mail class="w-5 h-5 text-brand-400 shrink-0" />
-            mielhurdegatina@gmail.com
+            <a href={`mailto:${site.contactEmail}`} class="hover:text-brand-500 transition-colors break-all">{site.contactEmail}</a>
           </li>
         </ul>
       </div>
     </div>
     
     <div class="pt-8 flex flex-col md:flex-row justify-between items-center text-stone-500 text-sm gap-4">
-      <p>&copy; {new Date().getFullYear()} Miel HurdeGatina. Todos los derechos reservados.</p>
+      <p>&copy; {new Date().getFullYear()} {site.name}. Todos los derechos reservados.</p>
       <div class="flex gap-6">
         <a href="/terminos-y-condiciones" class="hover:text-brand-400 transition-colors">Términos y Condiciones</a>
         <a href="/politica-de-privacidad" class="hover:text-brand-400 transition-colors">Privacidad</a>

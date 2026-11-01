@@ -1,5 +1,6 @@
 import { atom, computed } from "nanostores";
 import { persistentAtom } from "@nanostores/persistent";
+import { shipping } from "../data/site";
 
 // Cart store: array of { id, name, price, quantity, image }
 export const cartItems = persistentAtom("cart", [], {
@@ -47,8 +48,9 @@ export function updateCartItemQuantity(itemId, quantity) {
 
 // Helper specific to formatting currency if needed, or just consume these raw values
 
-export const SHIPPING_THRESHOLD = 60; // Envío gratis a partir de 60€
-export const SHIPPING_COST_VALUE = 5.50; // Gastos de envío fijos
+// Re-exportados desde src/data/site.ts (única fuente de verdad)
+export const SHIPPING_THRESHOLD = shipping.threshold; // Envío gratis a partir de 60€
+export const SHIPPING_COST_VALUE = shipping.cost; // 5,50€ de gastos de envío
 
 export const subtotal = computed(cartItems, (items) => {
   return items.reduce((sum, item) => sum + item.price * item.quantity, 0);

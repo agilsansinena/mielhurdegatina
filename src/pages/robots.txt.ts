@@ -1,13 +1,16 @@
 import type { APIRoute } from "astro";
 
-const robotsTxt = `
-User-agent: *
+export const GET: APIRoute = ({ site }) => {
+  const origin = (site ?? new URL("https://www.mielhurdegatina.com")).origin;
+
+  const robotsTxt = `User-agent: *
 Allow: /
+Disallow: /checkout
+Disallow: /pedido-confirmado
+Disallow: /api/
 
-Sitemap: https://mielhurdegatina.com/sitemap-index.xml
-`.trim();
+Sitemap: ${origin}/sitemap-index.xml`.trim();
 
-export const GET: APIRoute = () => {
   return new Response(robotsTxt, {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",

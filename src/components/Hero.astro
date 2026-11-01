@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import heroBg from '../assets/Torrecilla_de_los_Angeles.jpg';
+import { site } from '../data/site';
 ---
 
 <section id="inicio" class="relative min-h-[100dvh] flex items-center justify-center overflow-hidden">
@@ -10,8 +11,12 @@ import heroBg from '../assets/Torrecilla_de_los_Angeles.jpg';
       src={heroBg} 
       alt="Paisaje de Las Hurdes - Torrecilla de los Ángeles" 
       class="w-full h-full object-cover scale-105"
+      widths={[640, 960, 1280, 1600]}
+      sizes="100vw"
+      quality={62}
       loading="eager"
       fetchpriority="high"
+      decoding="async"
     />
     <!-- Gradient Overlay for better text contrast -->
     <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-brand-950/90 mix-blend-multiply"></div>
@@ -19,12 +24,12 @@ import heroBg from '../assets/Torrecilla_de_los_Angeles.jpg';
   </div>
 
   <!-- Content -->
-  <div class="relative z-10 container mx-auto px-4 md:px-6 text-center text-white space-y-8 md:space-y-10 animate-[slide-up_1s_ease-out]">
+  <div class="relative z-10 container mx-auto px-4 md:px-6 text-center text-white space-y-8 md:space-y-10 animate-[slide-up_0.45s_ease-out]">
     <div class="space-y-6">
       <!-- Badge -->
       <span class="inline-flex items-center gap-2 py-1.5 px-4 border border-brand-200/30 rounded-full text-xs md:text-sm font-medium tracking-widest uppercase bg-brand-950/30 backdrop-blur-md text-brand-100 shadow-lg">
         <span class="w-1.5 h-1.5 rounded-full bg-brand-400 animate-pulse"></span>
-        Artesanía Pura desde 1980
+        Artesanía pura desde {site.foundedYear}
       </span>
 
       <!-- Main Title -->

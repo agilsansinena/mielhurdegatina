@@ -1,53 +1,59 @@
 import type { APIRoute } from "astro";
-import Stripe from "stripe";
 import { products } from "../../data/products";
+import { shipping } from "../../data/site";
+import { requireStripe } from "../../lib/stripe";
 
-const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2026-02-25.clover",
-});
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
 
-const SHIPPING_THRESHOLD = 60;
-const SHIPPING_COST = 4.50;
+/** Dominios desde los que se acepta crear un pago. */
+const ALLOWED_HOSTS = new Set([
+  "mielhurdegatina.com",
+  "www.mielhurdegatina.com",
+  "localhost",
+  "127.0.0.1",
+]);
+
+function requestHostname(request: Request): string {
+  const origin = request.headers.get("origin") ?? request.headers.get("referer") ?? "";
+  if (!origin) return "";
+  try {
+    return new URL(origin).hostname;
+  } catch {
+    return "";
+  }
+}
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const { items, subtotal, shipping, total, customerData } = await request.json();
+    const { items, subtotal, shipping: clientShipping, total, customerData } =
+      await request.json();
 
-    const origin = request.headers.get("origin") || request.headers.get("referer") || "";
-    const isLocal = origin.includes("localhost") || origin.includes("127.0.0.1");
-    if (import.meta.env.PROD && origin && !origin.includes("mielhurdegatina.com") && !isLocal) {
-        return new Response(JSON.stringify({ error: "Origen no autorizado" }), {
-          status: 403,
-          headers: { "Content-Type": "application/json" },
-        });
+    // Comprobación de origen exacta (no "includes", que admitiría dominios falsos).
+    const hostname = requestHostname(request);
+    if (import.meta.env.PROD && hostname && !ALLOWED_HOSTS.has(hostname)) {
+      return json({ error: "Origen no autorizado" }, 403);
     }
 
-    // Validate items
     if (!items || !Array.isArray(items) || items.length === 0) {
-      return new Response(JSON.stringify({ error: "No hay productos en el pedido" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+      return json({ error: "No hay productos en el pedido" }, 400);
     }
 
-    // Recalculate total on server for security using real DB prices
+    // El importe SIEMPRE se recalcula en el servidor con los precios del catálogo.
     let serverSubtotal = 0;
     const validatedItems = [];
 
     for (const item of items) {
-      if (!item.id || typeof item.quantity !== "number" || item.quantity < 1 || item.quantity > 50) {
-        return new Response(JSON.stringify({ error: "Datos de producto inválidos" }), {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        });
+      if (!item?.id || typeof item.quantity !== "number" || item.quantity < 1 || item.quantity > 50) {
+        return json({ error: "Datos de producto inválidos" }, 400);
       }
 
       const product = products.find((p) => p.id === item.id);
       if (!product) {
-        return new Response(JSON.stringify({ error: `Producto no encontrado: ${item.id}` }), {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        });
+        return json({ error: `Producto no encontrado: ${item.id}` }, 400);
       }
 
       serverSubtotal += product.price * item.quantity;
@@ -59,53 +65,37 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    const serverShipping =
-      serverSubtotal >= SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
+    const serverShipping = serverSubtotal >= shipping.threshold ? 0 : shipping.cost;
     const serverTotal = serverSubtotal + serverShipping;
-
-    // Check for price mismatch (allow small floating point tolerance)
-    if (Math.abs(serverTotal - total) > 0.02) {
-      console.warn(
-        `⚠️ Price mismatch: client=${total}, server=${serverTotal}`,
-      );
-    }
-
-    // Use server-calculated total for security
     const amountInCents = Math.round(serverTotal * 100);
 
     if (amountInCents < 50) {
-      return new Response(
-        JSON.stringify({ error: "El importe mínimo es 0.50€" }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        },
+      return json({ error: "El importe mínimo es 0,50€" }, 400);
+    }
+
+    if (
+      typeof total === "number" &&
+      Math.abs(serverTotal - total) > 0.02
+    ) {
+      console.warn(
+        `⚠️ Diferencia de importe: cliente=${total}€, servidor=${serverTotal}€ (se cobra el del servidor)`,
       );
     }
 
-    // Create Payment Intent
+    const stripe = requireStripe();
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountInCents,
       currency: "eur",
-      automatic_payment_methods: {
-        enabled: true,
-      },
+      automatic_payment_methods: { enabled: true },
       metadata: {
-        items: JSON.stringify(
-          validatedItems.map((item: any) => ({
-            id: item.id,
-            name: item.name,
-            price: item.price,
-            quantity: item.quantity,
-          })),
-        ),
+        items: JSON.stringify(validatedItems),
         subtotal: serverSubtotal.toFixed(2),
         shipping: serverShipping.toFixed(2),
         customerEmail: customerData?.email || "",
         customerPhone: customerData?.phone || "",
         customerName: `${customerData?.firstName || ""} ${customerData?.lastName || ""}`.trim(),
         shippingAddress: JSON.stringify({
-          address: customerData?.address || "",
+          line1: customerData?.address || "",
           city: customerData?.city || "",
           postalCode: customerData?.postalCode || "",
           province: customerData?.province || "",
@@ -113,33 +103,23 @@ export const POST: APIRoute = async ({ request }) => {
         }),
       },
       receipt_email: customerData?.email || undefined,
-      description: `Pedido Miel HurdeGatina - ${items.length} producto(s)`,
+      description: `Pedido ${products.length ? "Miel HurdeGatina" : ""} - ${validatedItems.length} producto(s)`,
     });
 
     console.log(
       `✅ PaymentIntent creado: ${paymentIntent.id} | Total: ${serverTotal.toFixed(2)}€`,
     );
 
-    return new Response(
-      JSON.stringify({
-        clientSecret: paymentIntent.client_secret,
-        paymentIntentId: paymentIntent.id,
-      }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    return json({
+      clientSecret: paymentIntent.client_secret,
+      paymentIntentId: paymentIntent.id,
+      amount: serverTotal,
+    });
   } catch (error: any) {
     console.error("❌ Error creando PaymentIntent:", error);
-    return new Response(
-      JSON.stringify({
-        error: error.message || "Error al crear la sesión de pago",
-      }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      },
+    return json(
+      { error: error?.message || "Error al crear la sesión de pago" },
+      500,
     );
   }
 };

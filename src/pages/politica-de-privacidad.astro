@@ -1,0 +1,129 @@
+---
+export const prerender = true;
+import Layout from '../layouts/Layout.astro';
+import { site } from '../data/site';
+
+const updatedAt = new Date().toLocaleDateString('es-ES', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+---
+
+<Layout
+  title="Política de Privacidad | Miel HurdeGatina"
+  description="Cómo tratamos tus datos personales en Miel HurdeGatina: finalidad, base legal, conservación, destinatarios y derechos."
+>
+  <div class="pt-32 pb-16 px-4 bg-stone-50 min-h-screen">
+    <div class="max-w-3xl mx-auto bg-white p-8 md:p-12 rounded-2xl shadow-sm border border-stone-100">
+      <h1 class="text-4xl font-display font-bold text-amber-900 mb-3">Política de Privacidad</h1>
+      <p class="text-sm text-stone-500 mb-8">Última actualización: {updatedAt}</p>
+
+      <div class="prose prose-stone max-w-none text-stone-600">
+        <p>
+          Esta política explica qué datos personales tratamos cuando compras o navegas por
+          {site.name}, para qué los usamos y qué derechos tienes. Es aplicable el Reglamento (UE)
+          2016/679 (RGPD) y la Ley Orgánica 3/2018 (LOPDGDD).
+        </p>
+
+        <h3 class="text-xl font-bold text-stone-800 mt-8 mb-2">1. Responsable del tratamiento</h3>
+        <ul class="list-disc pl-6 space-y-1">
+          <li><strong>Titular:</strong> {site.legal.ownerName}</li>
+          {site.legal.nif && <li><strong>NIF/CIF:</strong> {site.legal.nif}</li>}
+          <li><strong>Domicilio:</strong> {site.address.street}, {site.address.postalCode} {site.address.locality} ({site.address.region}), España</li>
+          <li><strong>Email de contacto:</strong> <a href={`mailto:${site.contactEmail}`} class="text-brand-700 hover:underline">{site.contactEmail}</a></li>
+          <li><strong>Teléfono:</strong> {site.phoneDisplay}</li>
+        </ul>
+
+        <h3 class="text-xl font-bold text-stone-800 mt-8 mb-2">2. Qué datos tratamos y de dónde salen</h3>
+        <ul class="list-disc pl-6 space-y-1">
+          <li><strong>Datos de identificación y contacto:</strong> nombre, apellidos, email y teléfono. Nos los facilitas al rellenar el checkout.</li>
+          <li><strong>Datos de envío:</strong> dirección, código postal, ciudad, provincia y país.</li>
+          <li><strong>Datos del pedido:</strong> productos, importe, estado del pago y número de pedido.</li>
+          <li><strong>Datos de pago:</strong> los gestiona directamente Stripe. Nosotros <strong>no vemos ni almacenamos el número de tu tarjeta</strong>.</li>
+          <li><strong>Datos de navegación:</strong> analítica agregada y anónima (sin cookies de seguimiento ni perfilado).</li>
+        </ul>
+
+        <h3 class="text-xl font-bold text-stone-800 mt-8 mb-2">3. Para qué los usamos y con qué base legal</h3>
+        <ul class="list-disc pl-6 space-y-1">
+          <li><strong>Gestionar tu pedido, el pago y el envío:</strong> base legal la ejecución del contrato (art. 6.1.b RGPD).</li>
+          <li><strong>Atender consultas y devoluciones:</strong> interés legítimo en atender al cliente (art. 6.1.f).</li>
+          <li><strong>Enviarte emails sobre tu pedido</strong> (confirmación, incidencias): ejecución del contrato.</li>
+          <li><strong>Obligaciones legales</strong> (facturación, contabilidad, garantías): obligación legal (art. 6.1.c).</li>
+          <li><strong>Comunicaciones comerciales:</strong> solo si las has solicitado expresamente; puedes darte de baja en cualquier momento.</li>
+        </ul>
+
+        <h3 class="text-xl font-bold text-stone-800 mt-8 mb-2">4. Cuánto tiempo los conservamos</h3>
+        <p>
+          Los datos del pedido se conservan mientras se gestiona la compra y, después, durante los
+          plazos legales de conservación (6 años a efectos fiscales y mercantiles, y 3 años de
+          garantía legal de conformidad). Cuando dejan de ser necesarios se suprimen de forma segura.
+        </p>
+
+        <h3 class="text-xl font-bold text-stone-800 mt-8 mb-2">5. Quién más puede ver tus datos</h3>
+        <p>No vendemos tus datos. Solo acceden a ellos los proveedores necesarios para prestar el servicio:</p>
+        <ul class="list-disc pl-6 space-y-1">
+          <li><strong>Stripe Payments Europe, Ltd.</strong> (pagos con tarjeta).</li>
+          <li><strong>Resend</strong> (envío de los emails de confirmación).</li>
+          <li><strong>Vercel Inc.</strong> (alojamiento del sitio web).</li>
+          <li>Transportista que entregue tu pedido (nombre, dirección y teléfono).</li>
+        </ul>
+        <p>
+          Algunos de estos proveedores están fuera del Espacio Económico Europeo. Las transferencias
+          se amparan en las cláusulas contractuales tipo aprobadas por la Comisión Europea y en las
+          decisiones de adecuación aplicables.
+        </p>
+
+        <h3 class="text-xl font-bold text-stone-800 mt-8 mb-2">6. Tus derechos</h3>
+        <p>Puedes ejercerlos escribiendo a <a href={`mailto:${site.contactEmail}`} class="text-brand-700 hover:underline">{site.contactEmail}</a>:</p>
+        <ul class="list-disc pl-6 space-y-1">
+          <li>Acceso a tus datos y a cómo los tratamos.</li>
+          <li>Rectificación de datos inexactos.</li>
+          <li>Supresión («derecho al olvido»), cuando proceda.</li>
+          <li>Limitación u oposición al tratamiento.</li>
+          <li>Portabilidad de los datos que nos diste.</li>
+          <li>Retirada del consentimiento prestado en cualquier momento.</li>
+        </ul>
+        <p>
+          Responderemos en el plazo máximo de un mes. Si no estás conforme, puedes reclamar ante la
+          Agencia Española de Protección de Datos (AEPD), C/ Jorge Juan 6, 28001 Madrid, o en la sede
+          electrónica <a href="https://www.aepd.es" target="_blank" rel="noopener noreferrer" class="text-brand-700 hover:underline">www.aepd.es</a>.
+        </p>
+
+        <h3 class="text-xl font-bold text-stone-800 mt-8 mb-2">7. Cookies y almacenamiento local</h3>
+        <p>
+          No usamos cookies publicitarias ni de perfilado. Utilizamos:
+        </p>
+        <ul class="list-disc pl-6 space-y-1">
+          <li><strong>Almacenamiento técnico propio</strong> (<em>localStorage</em>) para recordar los productos de tu cesta y si ya has aceptado o rechazado el aviso de cookies. Sin él no puede funcionar la tienda.</li>
+          <li><strong>Analítica agregada</strong> de Vercel, que no instala cookies ni te identifica personalmente.</li>
+        </ul>
+        <p>Puedes borrar ese almacenamiento desde la configuración de tu navegador en cualquier momento.</p>
+
+        <h3 class="text-xl font-bold text-stone-800 mt-8 mb-2">8. Seguridad</h3>
+        <p>
+          La web funciona siempre bajo conexión cifrada (HTTPS). Los pagos se procesan en los
+          servidores de Stripe, certificados PCI DSS de nivel 1. Aplicamos medidas técnicas y
+          organizativas razonables para proteger tus datos frente a accesos no autorizados.
+        </p>
+
+        <h3 class="text-xl font-bold text-stone-800 mt-8 mb-2">9. Menores de edad</h3>
+        <p>
+          La tienda está dirigida a personas mayores de 18 años. No tratamos conscientemente datos de
+          menores sin la autorización de sus tutores.
+        </p>
+
+        <h3 class="text-xl font-bold text-stone-800 mt-8 mb-2">10. Cambios en esta política</h3>
+        <p>
+          Podemos actualizar esta política para reflejar cambios normativos o del servicio. La versión
+          vigente es siempre la publicada en esta página, con su fecha de actualización.
+        </p>
+      </div>
+
+      <div class="mt-10 pt-6 border-t border-stone-200 flex flex-wrap gap-4 text-sm">
+        <a href="/terminos-y-condiciones" class="text-brand-700 hover:underline">Términos y Condiciones</a>
+        <a href="/" class="text-stone-600 hover:text-stone-900">Volver a la tienda</a>
+      </div>
+    </div>
+  </div>
+</Layout>

@@ -1,28 +1,29 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { CheckCircle, Clock, XCircle } from 'lucide-astro';
+import { CheckCircle, Clock, XCircle, Hourglass } from 'lucide-astro';
+import { site } from '../data/site';
 ---
 
-<Layout title="Pedido Confirmado - Miel HurdeGatina">
+<Layout title="Pedido confirmado - Miel HurdeGatina" noindex>
   <div class="min-h-screen bg-stone-50 flex items-center justify-center p-4">
     <!-- Loading State -->
     <div id="loading-state" class="max-w-md w-full bg-white rounded-xl p-8 text-center shadow-lg border border-stone-200">
       <div class="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
         <Clock class="w-10 h-10 text-stone-400" />
       </div>
-      <h1 class="text-2xl font-bold text-stone-900 mb-4">Verificando pago...</h1>
-      <p class="text-stone-600">Estamos confirmando tu pedido, un momento por favor.</p>
+      <h1 class="text-2xl font-bold text-stone-900 mb-4">Verificando el pago...</h1>
+      <p class="text-stone-600">Estamos confirmando tu pedido con Stripe, un momento por favor.</p>
     </div>
 
-    <!-- Success State (hidden by default) -->
+    <!-- Success State -->
     <div id="success-state" class="hidden max-w-md w-full bg-white rounded-xl p-8 text-center shadow-lg border border-stone-200">
       <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
         <CheckCircle class="w-10 h-10 text-green-600" />
       </div>
-      
-      <h1 class="text-2xl font-bold text-stone-900 mb-4">¡Pedido Confirmado!</h1>
+
+      <h1 class="text-2xl font-bold text-stone-900 mb-4">¡Pedido confirmado!</h1>
       <p class="text-stone-600 mb-8">
-        Hemos recibido tu pago correctamente. Recibirás un email de confirmación en breve.
+        Hemos recibido tu pago correctamente. Te hemos enviado un email con el resumen del pedido.
       </p>
 
       <div class="bg-stone-50 rounded-lg p-4 mb-6">
@@ -40,20 +41,46 @@ import { CheckCircle, Clock, XCircle } from 'lucide-astro';
       </a>
     </div>
 
-    <!-- Error State (hidden by default) -->
+    <!-- Pending State -->
+    <div id="pending-state" class="hidden max-w-md w-full bg-white rounded-xl p-8 text-center shadow-lg border border-stone-200">
+      <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <Hourglass class="w-10 h-10 text-amber-600" />
+      </div>
+
+      <h1 class="text-2xl font-bold text-stone-900 mb-4">Pago en proceso</h1>
+      <p id="pending-message" class="text-stone-600 mb-8">
+        Tu pago está siendo verificado. Te avisaremos por email en cuanto se confirme.
+      </p>
+
+      <a href="/" class="inline-block w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-lg transition-colors">
+        Volver a la tienda
+      </a>
+    </div>
+
+    <!-- Error State -->
     <div id="error-state" class="hidden max-w-md w-full bg-white rounded-xl p-8 text-center shadow-lg border border-stone-200">
       <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
         <XCircle class="w-10 h-10 text-red-600" />
       </div>
-      
-      <h1 class="text-2xl font-bold text-stone-900 mb-4">Error en el pago</h1>
-      <p id="error-message" class="text-stone-600 mb-8">
-        Ha ocurrido un error al procesar tu pago. Por favor, inténtalo de nuevo.
+
+      <h1 class="text-2xl font-bold text-stone-900 mb-4">No hemos podido confirmar el pago</h1>
+      <p id="error-message" class="text-stone-600 mb-4">
+        Ha ocurrido un error al verificar tu pedido.
+      </p>
+      <p class="text-sm text-stone-500 mb-8">
+        Si el banco te ha cobrado, escríbenos a
+        <a href={`mailto:${site.contactEmail}`} class="text-brand-600 hover:underline">{site.contactEmail}</a>
+        y lo revisamos al momento.
       </p>
 
-      <a href="/checkout" class="inline-block w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-lg transition-colors">
-        Volver al checkout
-      </a>
+      <div class="flex flex-col gap-3">
+        <a href="/checkout" class="inline-block w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-lg transition-colors">
+          Volver al checkout
+        </a>
+        <a href="/" class="inline-block w-full text-stone-600 hover:text-stone-900 font-medium py-2">
+          Ir a la tienda
+        </a>
+      </div>
     </div>
   </div>
 </Layout>
@@ -61,88 +88,78 @@ import { CheckCircle, Clock, XCircle } from 'lucide-astro';
 <script>
   const loadingState = document.getElementById('loading-state');
   const successState = document.getElementById('success-state');
+  const pendingState = document.getElementById('pending-state');
   const errorState = document.getElementById('error-state');
   const orderNumberEl = document.getElementById('order-number');
   const errorMessageEl = document.getElementById('error-message');
+  const pendingMessageEl = document.getElementById('pending-message');
   const orderDetails = document.getElementById('order-details');
   const orderTotalDisplay = document.getElementById('order-total-display');
 
-  async function handlePaymentResult() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const paymentIntentId = urlParams.get('payment_intent');
-    const paymentIntentClientSecret = urlParams.get('payment_intent_client_secret');
-    const redirectStatus = urlParams.get('redirect_status');
+  function showOnly(state: HTMLElement | null) {
+    [loadingState, successState, pendingState, errorState].forEach((el) => {
+      if (el === state) el?.classList.remove('hidden');
+      else el?.classList.add('hidden');
+    });
+  }
 
-    // Legacy support for old order_id parameter
-    const orderId = urlParams.get('order_id');
-    if (orderId && !paymentIntentId) {
-      showSuccess(orderId);
-      return;
-    }
-
-    if (!paymentIntentId) {
-      showError('No se encontró información del pago.');
-      return;
-    }
-
-    if (redirectStatus === 'succeeded') {
-      // Confirm the payment on server and send emails
-      try {
-        const response = await fetch('/api/confirm-order', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ paymentIntentId }),
-        });
-
-        const result = await response.json();
-        
-        if (result.success) {
-          showSuccess(result.orderId || paymentIntentId);
-          if (result.total) {
-            if (orderTotalDisplay) {
-              orderTotalDisplay.textContent = `Total pagado: ${parseFloat(result.total).toFixed(2)}€`;
-            }
-            if (orderDetails) orderDetails.classList.remove('hidden');
-          }
-          // Clear cart
-          localStorage.setItem('cart', '[]');
-        } else {
-          showError(result.error || 'Error al confirmar el pedido.');
-        }
-      } catch (err) {
-        console.error('Error confirmando pedido:', err);
-        // Even if email fails, payment went through
-        showSuccess(paymentIntentId);
-        localStorage.setItem('cart', '[]');
-      }
-    } else if (redirectStatus === 'processing') {
-      showSuccess(paymentIntentId);
-      localStorage.setItem('cart', '[]');
-    } else {
-      showError('El pago no se ha completado. Por favor, inténtalo de nuevo.');
+  function showSuccess(orderId: string, total?: string) {
+    showOnly(successState);
+    if (orderNumberEl) orderNumberEl.textContent = orderId;
+    if (total && orderDetails && orderTotalDisplay) {
+      orderTotalDisplay.textContent = `Total pagado: ${total}€`;
+      orderDetails.classList.remove('hidden');
     }
   }
 
-  function showSuccess(id: string) {
-    loadingState?.classList.add('hidden');
-    successState?.classList.remove('hidden');
-    errorState?.classList.add('hidden');
-    
-    if (orderNumberEl) {
-      orderNumberEl.textContent = '#' + id.slice(-8).toUpperCase();
-    }
+  function showPending(message?: string) {
+    showOnly(pendingState);
+    if (message && pendingMessageEl) pendingMessageEl.textContent = message;
   }
 
   function showError(message: string) {
-    loadingState?.classList.add('hidden');
-    successState?.classList.add('hidden');
-    errorState?.classList.remove('hidden');
-    
-    if (errorMessageEl) {
-      errorMessageEl.textContent = message;
+    showOnly(errorState);
+    if (errorMessageEl) errorMessageEl.textContent = message;
+  }
+
+  async function handlePaymentResult() {
+    const paymentIntentId = new URLSearchParams(window.location.search).get('payment_intent');
+
+    // El estado real lo devuelve Stripe a través del servidor: nunca la URL.
+    if (!paymentIntentId) {
+      showError('No encontramos los datos del pago en el enlace.');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/confirm-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentIntentId }),
+      });
+
+      const result = await response.json().catch(() => ({}));
+
+      if (result.success) {
+        showSuccess(result.orderId || paymentIntentId, result.total);
+        // Pedido pagado: se vacía la cesta
+        localStorage.removeItem('cart');
+        return;
+      }
+
+      if (result.pending) {
+        showPending(result.error);
+        return;
+      }
+
+      showError(result.error || 'El pago no se ha podido confirmar.');
+    } catch (error) {
+      console.error('Error confirmando el pedido:', error);
+      showError(
+        'No hemos podido verificar el pago por un problema de conexión. Si te han cobrado, recibirás el email de confirmación igualmente.',
+      );
     }
   }
 
-  // Run on page load
   handlePaymentResult();
 </script>

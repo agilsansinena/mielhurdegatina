@@ -1,18 +1,31 @@
-<div id="cookie-banner" class="fixed bottom-0 left-0 right-0 bg-stone-900 text-white p-4 md:p-6 z-50 transform translate-y-full transition-transform duration-500 shadow-2xl">
+---
+---
+<div
+  id="cookie-banner"
+  role="region"
+  aria-label="Aviso de cookies"
+  class="fixed bottom-0 left-0 right-0 bg-stone-900 text-white p-4 md:p-6 z-40 transform translate-y-full transition-transform duration-500 shadow-2xl"
+>
   <div class="container mx-auto max-w-6xl flex flex-col md:flex-row items-center justify-between gap-4">
     <div class="text-sm md:text-base text-stone-300 max-w-3xl">
       <p>
-        Utilizamos cookies propias para mejorar tu experiencia de compra y recordar tu carrito. 
-        Si continúas navegando, consideramos que aceptas su uso. 
-        Puedes leer más en nuestra <a href="/politica-de-privacidad" class="text-brand-400 hover:text-brand-300 underline">Política de Privacidad</a>.
+        Solo usamos almacenamiento propio para recordar tu carrito y cookies técnicas necesarias.
+        La analítica es anónima y no te identifica. Puedes leer más en nuestra
+        <a href="/politica-de-privacidad" class="text-brand-400 hover:text-brand-300 underline">Política de Privacidad</a>.
       </p>
     </div>
-    <div class="flex gap-4 min-w-max">
-      <button 
-        id="accept-cookies" 
+    <div class="flex gap-3 min-w-max">
+      <button
+        id="reject-cookies"
+        class="border border-stone-600 hover:border-stone-400 text-stone-200 px-5 py-2.5 rounded-full font-medium transition-colors text-sm md:text-base"
+      >
+        Rechazar
+      </button>
+      <button
+        id="accept-cookies"
         class="bg-brand-400 hover:bg-brand-300 text-brand-950 px-6 py-2.5 rounded-full font-bold transition-colors text-sm md:text-base"
       >
-        Aceptar y Cerrar
+        Aceptar
       </button>
     </div>
   </div>
@@ -21,15 +34,30 @@
 <script>
   const banner = document.getElementById('cookie-banner');
   const acceptBtn = document.getElementById('accept-cookies');
+  const rejectBtn = document.getElementById('reject-cookies');
 
-  if (!localStorage.getItem('cookies-accepted')) {
-    setTimeout(() => {
-      banner?.classList.remove('translate-y-full');
-    }, 1500);
+  const STORAGE_KEY = 'cookies-choice';
+
+  function hideBanner() {
+    banner?.classList.add('translate-y-full');
+  }
+
+  // Compatibilidad con la clave antigua ("cookies-accepted")
+  const storedChoice =
+    localStorage.getItem(STORAGE_KEY) ||
+    (localStorage.getItem('cookies-accepted') ? 'accepted' : null);
+
+  if (!storedChoice) {
+    setTimeout(() => banner?.classList.remove('translate-y-full'), 1200);
   }
 
   acceptBtn?.addEventListener('click', () => {
-    localStorage.setItem('cookies-accepted', 'true');
-    banner?.classList.add('translate-y-full');
+    localStorage.setItem(STORAGE_KEY, 'accepted');
+    hideBanner();
+  });
+
+  rejectBtn?.addEventListener('click', () => {
+    localStorage.setItem(STORAGE_KEY, 'rejected');
+    hideBanner();
   });
 </script>

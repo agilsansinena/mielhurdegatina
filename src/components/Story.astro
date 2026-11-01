@@ -1,6 +1,10 @@
 ---
 import { Image } from 'astro:assets';
-import heroBg from '../assets/hero-bg.png'; 
+import heroBg from '../assets/hero-bg.png';
+import { site, yearsOfCraftRounded } from '../data/site';
+
+const foundedYear = site.foundedYear;
+const years = yearsOfCraftRounded();
 ---
 
 <section id="historia" class="py-24 bg-white overflow-hidden">
@@ -11,7 +15,7 @@ import heroBg from '../assets/hero-bg.png';
         <div class="relative rounded-2xl overflow-hidden shadow-2xl rotate-1 hover:rotate-0 transition-transform duration-700">
            <Image 
             src={heroBg} 
-            alt="Apicultor en Las Hurdes" 
+            alt="Paisaje de la Sierra de Gata y Las Hurdes" 
             class="w-full h-[600px] object-cover scale-110"
           />
           <div class="absolute inset-0 bg-gradient-to-t from-stone-900/60 to-transparent flex items-end p-8">
@@ -26,11 +30,11 @@ import heroBg from '../assets/hero-bg.png';
           Nuestra Tradición
         </span>
         <h2 class="text-4xl md:text-5xl font-display font-medium text-stone-900 leading-tight">
-          Más de 70 años <br/> <span class="text-brand-600">endulzando vidas</span>
+          Cinco generaciones <br/> <span class="text-brand-600">endulzando vidas</span>
         </h2>
         <div class="space-y-6 text-stone-600 text-lg leading-relaxed">
           <p>
-            Nuestra historia está escrita en los caminos de la <strong>Sierra de Gata y Las Hurdes</strong>. Hemos crecido aprendiendo a leer el cielo, sabiendo cuándo florece el castaño, el brezo o la jara. Nuestra miel es el resultado de 40 primaveras en este paraíso natural
+            Somos la <strong>quinta generación</strong> de apicultores de la familia. Nuestra historia está escrita en los caminos de la <strong>Sierra de Gata y Las Hurdes</strong>: más de 70 años aprendiendo a leer el cielo, sabiendo cuándo florece el castaño, el brezo o la jara. Con marca propia desde {foundedYear}, llevamos más de {years} años cosechando en este paraíso natural.
           </p>
           <p>
             Miel HurdeGatina es el puente entre generaciones, de padres a hijos. Hemos evolucionado para llegar a tu mesa, pero nuestra esencia permanece intacta: no pasteurizamos, no mezclamos y respetamos profundamente a la abeja. <span class="block mt-2 italic font-medium text-brand-700">"Aunque las herramientas cambien, las manos y el corazón son los mismos."</span>

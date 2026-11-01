@@ -1,0 +1,113 @@
+---
+export const prerender = true;
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { articleJsonLd, breadcrumbJsonLd } from '../../lib/seo';
+import { products } from '../../data/products';
+import { site } from '../../data/site';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const path = `/blog/${post.id}`;
+
+const formatDate = (date: Date) =>
+  new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
+
+const jsonLd = [
+  articleJsonLd({
+    title: post.data.title,
+    description: post.data.description,
+    path,
+    image: post.data.image,
+    datePublished: post.data.date,
+    dateModified: post.data.updated,
+  }),
+  breadcrumbJsonLd([
+    { name: 'Inicio', path: '/' },
+    { name: 'Blog', path: '/blog' },
+    { name: post.data.title, path },
+  ]),
+];
+---
+
+<Layout
+  title={`${post.data.seoTitle ?? post.data.title} | ${site.name}`}
+  description={post.data.description}
+  type="article"
+  ogImage={post.data.image}
+  jsonLd={jsonLd}
+  article={{
+    publishedTime: post.data.date.toISOString(),
+    modifiedTime: post.data.updated?.toISOString(),
+  }}
+>
+  <Header solid />
+  <main class="pt-28 pb-20 bg-white">
+    <div class="container mx-auto px-6 max-w-3xl">
+      <nav aria-label="Migas de pan" class="text-sm text-stone-500 mb-8">
+        <a href="/" class="hover:text-brand-600">Inicio</a>
+        <span class="mx-2 text-stone-300">/</span>
+        <a href="/blog" class="hover:text-brand-600">Blog</a>
+        <span class="mx-2 text-stone-300">/</span>
+        <span class="inline-block max-w-[38ch] truncate align-bottom text-stone-700">{post.data.title}</span>
+      </nav>
+
+      <article>
+        <header class="mb-10">
+          <p class="text-xs uppercase tracking-widest text-brand-600 font-semibold mb-3">
+            {formatDate(post.data.date)}{post.data.readingTime && ` · ${post.data.readingTime} de lectura`}
+          </p>
+          <h1 class="text-4xl md:text-5xl font-display font-medium text-stone-900 mb-5 leading-tight">
+            {post.data.title}
+          </h1>
+          <p class="text-lg text-stone-600 leading-relaxed">{post.data.description}</p>
+        </header>
+
+        <div class="article-content">
+          <Content />
+        </div>
+
+        <footer class="mt-12 pt-8 border-t border-stone-200 text-sm text-stone-500">
+          Publicado por <strong class="text-stone-700">{site.name}</strong> el {formatDate(post.data.date)}.
+        </footer>
+      </article>
+
+      <div class="mt-16 bg-brand-50 border border-brand-100 rounded-2xl p-8">
+        <h2 class="text-2xl font-display font-medium text-stone-900 mb-3">Miel cruda de nuestras colmenas</h2>
+        <p class="text-stone-600 mb-6">
+          Sin pasteurizar, sin mezclar y envasada en origen. Envío en 24-48 h laborables.
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {products.slice(0, 2).map((product) => (
+            <ProductCard
+              id={product.id}
+              href={`/productos/${product.id}`}
+              name={product.title}
+              price={product.price}
+              description={product.description}
+              image={product.image}
+              badge={product.badge}
+              weight={product.weight}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div class="mt-10">
+        <a href="/blog" class="text-brand-700 font-semibold hover:text-brand-800">← Volver al blog</a>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>

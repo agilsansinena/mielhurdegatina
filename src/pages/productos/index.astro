@@ -1,0 +1,83 @@
+---
+export const prerender = true;
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { products } from '../../data/products';
+import { shipping } from '../../data/site';
+import { breadcrumbJsonLd, itemListJsonLd } from '../../lib/seo';
+
+const shippingCost = shipping.cost.toFixed(2).replace('.', ',');
+---
+
+<Layout
+  title="Comprar miel artesanal de Las Hurdes | Miel HurdeGatina"
+  description={`Miel cruda de Las Hurdes en tres formatos: 500 g, 1 kg y 2 kg. Sin pasteurizar ni mezclar. Envío de ${shippingCost} € y gratis desde ${shipping.threshold} €.`}
+  jsonLd={[
+    itemListJsonLd(products),
+    breadcrumbJsonLd([
+      { name: 'Inicio', path: '/' },
+      { name: 'Productos', path: '/productos' },
+    ]),
+  ]}
+>
+  <Header solid />
+  <main class="pt-28 pb-20 bg-gradient-to-b from-white via-brand-50/30 to-white">
+    <div class="container mx-auto px-6">
+      <nav aria-label="Migas de pan" class="text-sm text-stone-500 mb-8">
+        <a href="/" class="hover:text-brand-600">Inicio</a>
+        <span class="mx-2 text-stone-300">/</span>
+        <span class="text-stone-700">Productos</span>
+      </nav>
+
+      <div class="max-w-3xl mb-14">
+        <h1 class="text-4xl md:text-5xl font-display font-medium text-stone-900 mb-5">
+          Nuestra miel de bosque
+        </h1>
+        <p class="text-lg text-stone-600 leading-relaxed">
+          Una sola miel, tres formatos. Miel cruda de la Sierra de Gata y Las Hurdes, cosechada en
+          nuestras colmenas, filtrada en frío y envasada en origen. Sin pasteurizar, sin mezclar y sin
+          azúcares añadidos.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {products.map((product) => (
+          <ProductCard
+            id={product.id}
+            href={`/productos/${product.id}`}
+            name={product.title}
+            price={product.price}
+            description={product.description}
+            image={product.image}
+            badge={product.badge}
+            weight={product.weight}
+          />
+        ))}
+      </div>
+
+      <div class="mt-16 grid gap-6 md:grid-cols-3 text-sm text-stone-600">
+        <div class="bg-white rounded-xl border border-stone-100 p-6">
+          <h2 class="font-display text-lg font-semibold text-stone-900 mb-2">Envío rápido</h2>
+          <p>Preparamos tu pedido en 24-48 h laborables. Envío de {shippingCost} € y gratis desde {shipping.threshold} €.</p>
+        </div>
+        <div class="bg-white rounded-xl border border-stone-100 p-6">
+          <h2 class="font-display text-lg font-semibold text-stone-900 mb-2">Pago seguro</h2>
+          <p>Pago con tarjeta a través de Stripe. No almacenamos los datos de tu tarjeta en ningún momento.</p>
+        </div>
+        <div class="bg-white rounded-xl border border-stone-100 p-6">
+          <h2 class="font-display text-lg font-semibold text-stone-900 mb-2">Devoluciones</h2>
+          <p>Tienes 14 días para desistir. Si el tarro llega dañado, te lo reponemos sin coste.</p>
+        </div>
+      </div>
+
+      <div class="mt-14 text-center">
+        <a href="/blog" class="text-brand-700 font-semibold hover:text-brand-800">
+          Aprende más sobre la miel cruda en nuestro blog →
+        </a>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>
